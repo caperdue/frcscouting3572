@@ -12,16 +12,21 @@ class TeamCard extends StatelessWidget {
       background: Container(color: kRed),
       key: UniqueKey(),
       direction: DismissDirection.none, //Modify for admin stuff maybe?
-      child: Container(
-        height: 50.0,
-        decoration: BoxDecoration(
-            border: Border(
-          bottom: BorderSide(width: 2, color: kAquaMarine),
-        )),
-        child: ListTile(
-            title: Text(number.toString()),
-            trailing: getTeamStatus(),
-            tileColor: Colors.white38),
+      child: GestureDetector(
+        onTap: (){
+
+        },
+        child: Container(
+          height: 50.0,
+          decoration: BoxDecoration(
+              border: Border(
+            bottom: BorderSide(width: 2, color: kAquaMarine),
+          )),
+          child: ListTile(
+              title: Text(number.toString()),
+              trailing: getTeamStatus(),
+              tileColor: Colors.white38),
+        ),
       ),
     );
   }

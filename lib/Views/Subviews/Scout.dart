@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../Shared/TeamCard.dart';
-import '../Constants.dart';
+import '../../Shared/TeamCard.dart';
+import '../../Constants.dart';
 
 class Scout extends StatefulWidget {
   const Scout({Key? key}) : super(key: key);
@@ -68,6 +68,16 @@ class _ScoutState extends State<Scout> {
               return TeamCard(number: 3572, liked: 2);
             },
           ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FloatingActionButton(
+              child: Icon(
+                Icons.add,
+              ),
+              onPressed: (){
+
+          }),
         )
       ],
     );
