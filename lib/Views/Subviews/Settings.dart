@@ -8,12 +8,14 @@ class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(child: ElevatedButton(onPressed: () {
-      auth.signOut();
-      GoogleSignIn().signOut().then((success) {
-        Navigator.pushReplacementNamed(context, '/');
-      }).catchError((error) {
-        print('There was an error signing out!');
+      auth.signOut().then((value) {
+        GoogleSignIn().signOut().then((success) {
+          Navigator.pushReplacementNamed(context, '/');
+        }).catchError((error) {
+          print('There was an error signing out!');
+        });
       });
+
     },
       child: Text('Sign out'),));
   }

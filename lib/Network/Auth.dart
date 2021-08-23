@@ -1,23 +1,32 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'db.dart';
 
 /*
   Sign in with google
  */
 var auth = FirebaseAuth.instance;
-bool signedIn = auth.currentUser != null ? true : false;
-Future<bool> signInWithGoogle() async {
-  final GoogleSignIn googleSignIn = GoogleSignIn();
-  final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
-  if (googleSignInAccount != null) {
+
+signInWithGoogle() async {
+
+  //Testing popup
+  throw Error();
+    final GoogleSignInAccount? googleSignInAccount =
+        await GoogleSignIn().signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
-    await googleSignInAccount.authentication;
-    final AuthCredential authCredential = GoogleAuthProvider.credential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
-    return true;
-  }
-  return false;
+        await googleSignInAccount!.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+    await auth.signInWithCredential(credential);
+    if (auth.currentUser == null) {
+      throw Error();
+    }
+    final doc = await user.get();
+    if (!doc.exists) {
+      createUser(3572);
+    }
 }
 
 /*
@@ -26,13 +35,9 @@ Future<bool> signInWithGoogle() async {
 void listenAuthChanges() {
   auth.authStateChanges().listen((User? user) {
     if (user == null) {
-      signedIn = false;
+      print('No longer signed in');
     } else {
-      signedIn = true;
+      print('User signed in');
     }
   });
-}
-
-bool userSignedIn() {
-  return signedIn;
 }

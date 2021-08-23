@@ -24,8 +24,6 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-   FirebaseAuth.instance.signOut();
-   GoogleSignIn().signOut();
     FirebaseFirestore.instance.collection('Users').get().then((value) => print(value));
   }
 
