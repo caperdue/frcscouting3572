@@ -20,7 +20,7 @@ class TeamCard extends StatelessWidget {
           height: 50.0,
           decoration: BoxDecoration(
               border: Border(
-            bottom: BorderSide(width: 2, color: kAquaMarine),
+            bottom: BorderSide(width: 1, color: kAquaMarine),
           )),
           child: ListTile(
               title: Text(number.toString()),

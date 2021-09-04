@@ -1,28 +1,21 @@
 class Team {
   late int number;
   late String owner;
-  late int likeStatus;
-  late int comments;
-  late var images;
-  late Map<String, dynamic> stats;
+  late String code;
+
+  Team({required this.number, required this.owner, required this.code});
 
   Team.fromJson(Map<String, dynamic> json) {
     number = json['number'];
     owner = json['owner'];
-    likeStatus = json['likeStatus'];
-    comments = json['comments'];
-    images = json['images'];
-    stats = json['stats'];
+    code = json['code'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
     data['number'] = this.number;
     data['owner'] = this.owner;
-    data['likeStatus'] = this.likeStatus;
-    data['comments'] = this.comments;
-    data['images'] = this.images;
-    data['stats'] = this.stats;
+    data['code'] = this.code;
     return data;
   }
 }

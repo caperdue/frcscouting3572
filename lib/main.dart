@@ -31,6 +31,9 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MaterialApp(
         theme: ThemeData.light().copyWith(
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: kDarkBlue,
+          ),
           floatingActionButtonTheme: FloatingActionButtonThemeData(
             backgroundColor: kBlue,
           ),

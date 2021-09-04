@@ -30,18 +30,18 @@ class _TabScreenState extends State<TabScreen> {
                   Tab(
                     //  text: 'Scout',
                     icon: Icon(
-                      Icons.feed,
+                      Icons.leaderboard,
                     ),
                   ),
                   Tab(
-                    // text: 'Match',
+                    // textIcons.leaderboard 'Match',
                     icon: Icon(
-                      Icons.precision_manufacturing,
+                      Icons.public,
                     ),
                   ),
                   Tab(
                     // text: 'Stats',
-                    icon: Icon(Icons.leaderboard),
+                    icon: Icon(Icons.precision_manufacturing),
                   ),
                   Tab(
                     //text: 'Settings',
@@ -56,7 +56,6 @@ class _TabScreenState extends State<TabScreen> {
             Text('Tab 2'),
             Text('Tab 3'),
             Settings(),
-
           ])),
     );
   }

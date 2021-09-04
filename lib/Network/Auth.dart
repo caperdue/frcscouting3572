@@ -8,9 +8,6 @@ import 'db.dart';
 var auth = FirebaseAuth.instance;
 
 signInWithGoogle() async {
-
-  //Testing popup
-  throw Error();
     final GoogleSignInAccount? googleSignInAccount =
         await GoogleSignIn().signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
@@ -20,9 +17,6 @@ signInWithGoogle() async {
       idToken: googleSignInAuthentication.idToken,
     );
     await auth.signInWithCredential(credential);
-    if (auth.currentUser == null) {
-      throw Error();
-    }
     final doc = await user.get();
     if (!doc.exists) {
       createUser(3572);

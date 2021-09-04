@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../Shared/TeamCard.dart';
 import '../../Constants.dart';
+import '../../Network/db.dart';
 
 class Scout extends StatefulWidget {
   const Scout({Key? key}) : super(key: key);
@@ -43,7 +44,10 @@ class _ScoutState extends State<Scout> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text("Viewing: ${key == '0' ? 'My Data' : 'Team\'s Data'}", style: theme,),
+              Text(
+                "Viewing: ${key == '0' ? 'My Data' : 'Team\'s Data'}",
+                style: theme,
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                 child: CupertinoSegmentedControl(
@@ -62,12 +66,28 @@ class _ScoutState extends State<Scout> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: 1,
-            itemBuilder: (context, index) {
-              return TeamCard(number: 3572, liked: 2);
-            },
-          ),
+          child: StreamBuilder(
+              stream: user.collection('ScoutData').snapshots(),
+              builder: (context, AsyncSnapshot snapshot) {
+                if (!snapshot.hasData) {
+                  return CircularProgressIndicator();
+                }
+                final teams = snapshot.data!.docs;
+                //Convert stream of data into widgets
+                return ListView.builder(
+                  itemCount: teams.length,
+                  itemBuilder: (context, index) {
+                    return Dismissible(
+                      direction: DismissDirection.endToStart,
+                        onDismissed: (direction) {
+                          print('I was dismissed');
+                        },
+                        key: Key(index.toString()),
+                        child: TeamCard(number: 3572, liked: 2),
+                    background: Container(color: kRed),);
+                  },
+                );
+              }),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -75,9 +95,7 @@ class _ScoutState extends State<Scout> {
               child: Icon(
                 Icons.add,
               ),
-              onPressed: (){
-
-          }),
+              onPressed: () {}),
         )
       ],
     );
