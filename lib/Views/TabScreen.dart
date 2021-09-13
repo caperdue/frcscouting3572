@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'Subviews/Scout.dart';
-import 'Subviews/Settings.dart';
+import 'Scout.dart';
+import 'Settings.dart';
 
 class TabScreen extends StatefulWidget {
   const TabScreen({Key? key}) : super(key: key);

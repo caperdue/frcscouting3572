@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../../Network/Auth.dart';
+import '../Network/Auth.dart';
 
 class Settings extends StatelessWidget {
   const Settings({Key? key}) : super(key: key);

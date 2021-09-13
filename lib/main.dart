@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'Constants.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import '../Views/Login.dart';
 import '../Views/Landing.dart';
 import '../Views/TabScreen.dart';
-
+import '../Views/Subviews/ViewTeam.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -47,7 +45,8 @@ class _AppState extends State<App> {
         ),
       initialRoute: '/',
       routes: {
-          '/': (context) => Landing(),
+         '/': (context) => Landing(),
+       // '/': (context) => ViewTeam(null),
           '/view': (context) => Container(),
           '/login': (context) => Login(),
           '/home': (context) => TabScreen(),

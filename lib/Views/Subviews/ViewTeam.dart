@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 
 class ViewTeam extends StatefulWidget {
-  const ViewTeam({Key? key}) : super(key: key);
+  final int? team;
+  ViewTeam(this.team);
 
   @override
   _ViewTeamState createState() => _ViewTeamState();
@@ -11,6 +12,10 @@ class ViewTeam extends StatefulWidget {
 class _ViewTeamState extends State<ViewTeam> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.team == null ? 'Scout New Team' : 'Edit Team ${widget.team}'),
+      ),
+    );
   }
 }

@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../Shared/TeamCard.dart';
-import '../../Constants.dart';
-import '../../Network/db.dart';
-
+import '../Shared/TeamCard.dart';
+import '../Constants.dart';
+import '../Network/db.dart';
+import '../Views/Subviews/ViewTeam.dart';
 class Scout extends StatefulWidget {
   const Scout({Key? key}) : super(key: key);
 
@@ -13,6 +14,14 @@ class Scout extends StatefulWidget {
 
 class _ScoutState extends State<Scout> {
   String key = "0";
+  TextEditingController searchController = TextEditingController();
+  late Stream<QuerySnapshot> teamStream;
+  List<dynamic> filteredTeams = <int>[];
+
+  /*filterTeams(search) async {
+    var docs = await teamStream.toList();
+    if (docs. false)search)
+  }*/
   final Map<String, Widget> tabs = {
     '0': Container(
       child: Icon(
@@ -30,6 +39,7 @@ class _ScoutState extends State<Scout> {
   @override
   void initState() {
     super.initState();
+    teamStream = user.collection('ScoutData').snapshots();
   }
 
   @override
@@ -38,7 +48,13 @@ class _ScoutState extends State<Scout> {
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
-        CupertinoSearchTextField(),
+        CupertinoSearchTextField(
+          controller: searchController,
+          onChanged: (search) {
+
+
+          },
+        ),
         Padding(
           padding: EdgeInsets.only(left: 10.0),
           child: Row(
@@ -67,7 +83,7 @@ class _ScoutState extends State<Scout> {
         ),
         Expanded(
           child: StreamBuilder(
-              stream: user.collection('ScoutData').snapshots(),
+              stream: teamStream,
               builder: (context, AsyncSnapshot snapshot) {
                 if (!snapshot.hasData) {
                   return CircularProgressIndicator();
@@ -80,10 +96,10 @@ class _ScoutState extends State<Scout> {
                     return Dismissible(
                       direction: DismissDirection.endToStart,
                         onDismissed: (direction) {
-                          print('I was dismissed');
+                          user.collection('ScoutData').doc('${teams[index]['number']}').delete();
                         },
                         key: Key(index.toString()),
-                        child: TeamCard(number: 3572, liked: 2),
+                        child: TeamCard(number: int.parse(teams[index]['number']), liked: 2),
                     background: Container(color: kRed),);
                   },
                 );
@@ -95,7 +111,9 @@ class _ScoutState extends State<Scout> {
               child: Icon(
                 Icons.add,
               ),
-              onPressed: () {}),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewTeam(null)));
+              }),
         )
       ],
     );
