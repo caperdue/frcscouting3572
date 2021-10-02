@@ -13,7 +13,7 @@ void createUser(int team) {
   users.doc(auth.currentUser!.uid).set(newUser.toJson());
 }
 
-bool checkIfTeamExists(String teamString) {
+bool checkIfTeamExists(String teamString) { //Fix me to use await
   bool exists = false;
   teams.doc(teamString).get().then((team) {
     if (team.exists) {
@@ -21,4 +21,16 @@ bool checkIfTeamExists(String teamString) {
     }
   });
   return exists;
+}
+
+Future<DocumentSnapshot<Map<String, dynamic>>> grabTeam(int team) async {
+  return await user.collection('ScoutData').doc("$team").get();
+}
+
+Future deleteTeam(int team) async {
+  return await user.collection('ScoutData').doc("$team").delete();
+}
+
+Future setTeam(int team, Map<String, dynamic> data) async {
+  return await user.collection('ScoutData').doc("$team").set(data, SetOptions(merge: true));
 }

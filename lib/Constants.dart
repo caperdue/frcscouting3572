@@ -11,3 +11,7 @@ TextStyle theme = TextStyle(
   fontFamily: 'Roboto',
       fontWeight: FontWeight.w600,
 );
+
+TextStyle label = TextStyle(
+  fontWeight: FontWeight.bold,
+);

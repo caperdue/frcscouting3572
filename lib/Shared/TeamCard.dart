@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frcscouting3572/Views/TeamCreation/ViewTeam.dart';
 import '../Constants.dart';
 
 class TeamCard extends StatelessWidget {
@@ -8,26 +9,16 @@ class TeamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      background: Container(color: kRed),
-      key: UniqueKey(),
-      direction: DismissDirection.none, //Modify for admin stuff maybe?
-      child: GestureDetector(
-        onTap: (){
-
-        },
-        child: Container(
-          height: 50.0,
-          decoration: BoxDecoration(
-              border: Border(
-            bottom: BorderSide(width: 1, color: kAquaMarine),
-          )),
-          child: ListTile(
-              title: Text(number.toString()),
-              trailing: getTeamStatus(),
-              tileColor: Colors.white38),
-        ),
-      ),
+    return Container(
+      height: 50.0,
+      decoration: BoxDecoration(
+          border: Border(
+        bottom: BorderSide(width: 1, color: kAquaMarine),
+      )),
+      child: ListTile(
+          title: Text(number.toString()),
+          trailing: getTeamStatus(),
+          tileColor: Colors.white38),
     );
   }
 
@@ -39,7 +30,7 @@ class TeamCard extends StatelessWidget {
           color: kRed,
         );
       case 1:
-        return Text('OK');
+        return Text('');
       case 2:
         return Icon(Icons.thumb_up, color: kGreen);
       default:

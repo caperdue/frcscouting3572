@@ -4,6 +4,8 @@ class DialogMessage extends StatelessWidget {
   final String title;
   final String content;
 
+
+
   DialogMessage({required this.title, required this.content});
 
   @override
