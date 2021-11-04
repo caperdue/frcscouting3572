@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
-
+import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
 import '../../Network/db.dart' as db;
 
 class ViewTeam extends StatefulWidget {
@@ -22,7 +22,14 @@ class _ViewTeamState extends State<ViewTeam> {
   DocumentSnapshot? scoutTeamSnapshot; //Capture to do things later
   TextEditingController nickController = TextEditingController();
   TextEditingController commentsController = TextEditingController();
-  List<bool> buttonState = [false, true, false];
+  late ScoutTeam
+      teamBeforeChanges; //This allows us to reload the previous team save state without another get request.
+
+  List<bool> buttonState = [
+    false,
+    true,
+    false
+  ]; //Get which one is selected initially
   final List<Widget> buttons = [
     Icon(Icons.thumb_down, color: kRed),
     Icon(
@@ -39,14 +46,31 @@ class _ViewTeamState extends State<ViewTeam> {
   void initState() {
     super.initState();
     this.editMode = widget.newTeam;
+    reloadTeamScoutInfo();
+  }
+
+  void grabInitialTeamScoutInfo() {}
+  void setLikeStatusToggle(int selected) {
+    for (int i = 0; i < buttonState.length; i++) {
+      buttonState[i] = i == selected;
+      likedKey = selected;
+    }
+  }
+
+  void reloadTeamScoutInfo() {
     db.grabTeam(widget.team).then((team) {
       //Construct object
       if (team.exists) {
         setState(() {
-          print('I ran eventually');
           scoutTeamSnapshot = team;
           ScoutTeam initial = new ScoutTeam.fromJson(team.data()!);
+          teamBeforeChanges = initial;
           nickController.text = initial.nickname;
+          commentsController.text = initial.comments;
+
+          //Set the like status
+          buttonState[1] = false;
+          buttonState[initial.likeStatus] = true;
         });
       }
     });
@@ -67,6 +91,10 @@ class _ViewTeamState extends State<ViewTeam> {
                   if (scoutTeamSnapshot == null) {
                     //No team was created. Just exit.
                     Navigator.pop(context);
+                  } else {
+                    nickController.text = teamBeforeChanges.nickname;
+                    commentsController.text = teamBeforeChanges.comments;
+                    setLikeStatusToggle(teamBeforeChanges.likeStatus); //Just default
                   }
                 })
             : BackButton(),
@@ -88,19 +116,16 @@ class _ViewTeamState extends State<ViewTeam> {
                       images: null,
                       stats: null);
                   db.setTeam(widget.team, newTeam.toJson()).then((value) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: const Text('Saved successfully.'),
-                      backgroundColor: kGreen,
-                    ));
+                    showSnackBar(context, 'Saved successfully!', kGreen);
                     setState(() {
                       this.editMode = !this.editMode;
                     });
+                    teamBeforeChanges = newTeam;
                   }).catchError((error) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                          'There was an error while saving. Please try again: $error'),
-                      backgroundColor: kRed,
-                    ));
+                    showSnackBar(
+                        context,
+                        'There was an error while saving. Please try again: $error',
+                        kRed);
                   });
                 } else {
                   setState(() {
@@ -119,21 +144,23 @@ class _ViewTeamState extends State<ViewTeam> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  ToggleButtons(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    children: buttons,
-                    isSelected: buttonState,
-                    onPressed: (int index) {
-                      if (editMode) {
-                        setState(() {
-                          for (int i = 0; i < buttonState.length; i++) {
-                            buttonState[i] = i == index;
-                            likedKey = index;
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ToggleButtons(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        children: buttons,
+                        isSelected: buttonState,
+                        onPressed: (int index) {
+                          if (editMode) {
+                            setState(() {
+                              setLikeStatusToggle(index);
+                            });
                           }
-                        });
-                      }
-                    },
+                        },
+                      )
+                    ],
                   ),
                   Expanded(
                       child: Container(

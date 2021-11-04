@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Views/TeamCreation/ViewTeam.dart';
-import '../Constants.dart';
+import '../../Constants.dart';
 
 class TeamCard extends StatelessWidget {
   final int liked;

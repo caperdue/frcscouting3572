@@ -1,5 +1,3 @@
-import 'package:frcscouting3572/Views/Scout.dart';
-
 class ScoutTeam {
   late int number;
   late int likeStatus;

@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Views/Login.dart';
 import '../Views/Landing.dart';
 import '../Views/TabScreen.dart';
-import '../Views/TeamCreation/ViewTeam.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../Shared/TeamCard.dart';
 import '../Constants.dart';
 import '../Network/db.dart' as db;
 import '../Views/TeamCreation/TeamInitializer.dart';
 import '../Views/TeamCreation/ViewTeam.dart';
+import 'Shared/TeamCard.dart';
 
 class Scout extends StatefulWidget {
   const Scout({Key? key}) : super(key: key);
@@ -18,11 +18,6 @@ class _ScoutState extends State<Scout> {
   TextEditingController searchController = TextEditingController();
   late Stream<QuerySnapshot> teamStream;
   List<dynamic> filteredTeams = <int>[];
-
-  /*filterTeams(search) async {
-    var docs = await teamStream.toList();
-    if (docs. false)search)
-  }*/
   @override
   void initState() {
     super.initState();
@@ -67,16 +62,15 @@ class _ScoutState extends State<Scout> {
                         });
                       },
                       child: Dismissible(
+                        key: UniqueKey(), // Prevent error from unique widget
                         direction: DismissDirection.endToStart,
                         onDismissed: (direction) {
-                          print('running');
                           db.deleteTeam(teams[index]['number']).then((value) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content:
                                     const Text('Team successfully deleted')));
                           });
                         },
-                        key: Key(index.toString()),
                         child: TeamCard(
                             number: teams[index]['number'],
                             liked: teams[index]['likeStatus']),

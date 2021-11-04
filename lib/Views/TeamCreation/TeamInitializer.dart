@@ -17,7 +17,7 @@ class _TeamInitializerState extends State<TeamInitializer> {
     validateMsg = null;
 
     if (teamNumber.isEmpty || teamNumber.trim() == "") {
-      validateMsg = "Please enter a team number";
+      validateMsg = "Please enter a valid team number";
       setState(() {});
       return;
     }
@@ -34,9 +34,16 @@ class _TeamInitializerState extends State<TeamInitializer> {
       return;
     }
     else {
-      team = int.parse(teamNumber);
-      setState(() {});
-      return;
+      if (int.parse(teamNumber) <= 0) {
+        validateMsg = "Team number must be greater than 0";
+        setState(() {});
+        return;
+      }
+      else {
+        team = int.tryParse(teamNumber);
+        setState(() {});
+        return;
+      }
     }
   }
 

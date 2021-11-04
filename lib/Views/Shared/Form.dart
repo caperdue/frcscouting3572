@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frcscouting3572/Models/Team.dart';
+import 'package:frcscouting3572/Network/Auth.dart';
+import 'package:frcscouting3572/Network/db.dart';
 import 'DialogMessage.dart';
-import '../Network/db.dart';
-import '../Models/Team.dart';
-import '../Network/Auth.dart';
 
 class LoginForm extends StatefulWidget {
   @override
