@@ -8,8 +8,9 @@ DocumentReference user = db.collection('Users').doc(auth.currentUser!.uid);
 CollectionReference users = db.collection('Users');
 CollectionReference teams = db.collection('Teams');
 
-void createUser(int team) {
+void createUser(int? team) {
   final newUser = User(team: team);
+  print("running right now");
   users.doc(auth.currentUser!.uid).set(newUser.toJson());
 }
 

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
 import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
+import 'package:frcscouting3572/Views/Shared/RobotImagePicker.dart';
+
 import '../../Network/db.dart' as db;
 
 class ViewTeam extends StatefulWidget {
@@ -22,6 +24,7 @@ class _ViewTeamState extends State<ViewTeam> {
   DocumentSnapshot? scoutTeamSnapshot; //Capture to do things later
   TextEditingController nickController = TextEditingController();
   TextEditingController commentsController = TextEditingController();
+
   late ScoutTeam
       teamBeforeChanges; //This allows us to reload the previous team save state without another get request.
 
@@ -79,124 +82,124 @@ class _ViewTeamState extends State<ViewTeam> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: this.editMode
-            ? IconButton(
-                icon: Icon(Icons.cancel),
+      floatingActionButton: Column(
+        children: <Widget>[],
+      ),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: this.editMode
+              ? IconButton(
+                  icon: Icon(Icons.cancel),
+                  onPressed: () async {
+                    setState(() {
+                      this.editMode = false;
+                    });
+                    if (scoutTeamSnapshot == null) {
+                      //No team was created. Just exit.
+                      Navigator.pop(context);
+                    } else {
+                      nickController.text = teamBeforeChanges.nickname;
+                      commentsController.text = teamBeforeChanges.comments;
+                      setLikeStatusToggle(
+                          teamBeforeChanges.likeStatus); //Just default
+                    }
+                  })
+              : BackButton(),
+          title: Text(
+            this.editMode
+                ? 'Edit Team \n${widget.team}'
+                : 'View Team \n${widget.team}',
+            textAlign: TextAlign.center,
+          ),
+          actions: <Widget>[
+            TextButton(
                 onPressed: () async {
-                  setState(() {
-                    this.editMode = false;
-                  });
-                  if (scoutTeamSnapshot == null) {
-                    //No team was created. Just exit.
-                    Navigator.pop(context);
+                  if (this.editMode) {
+                    final newTeam = ScoutTeam(
+                        number: widget.team,
+                        nickname: nickController.text,
+                        likeStatus: likedKey,
+                        comments: commentsController.text,
+                        images: null,
+                        stats: null);
+                    db.setTeam(widget.team, newTeam.toJson()).then((value) {
+                      showSnackBar(context, 'Saved successfully!', kGreen);
+                      setState(() {
+                        this.editMode = !this.editMode;
+                      });
+                      teamBeforeChanges = newTeam;
+                    }).catchError((error) {
+                      showSnackBar(
+                          context,
+                          'There was an error while saving. Please try again: $error',
+                          kRed);
+                    });
                   } else {
-                    nickController.text = teamBeforeChanges.nickname;
-                    commentsController.text = teamBeforeChanges.comments;
-                    setLikeStatusToggle(teamBeforeChanges.likeStatus); //Just default
-                  }
-                })
-            : BackButton(),
-        title: Text(
-          this.editMode
-              ? 'Edit Team \n${widget.team}'
-              : 'View Team \n${widget.team}',
-          textAlign: TextAlign.center,
-        ),
-        actions: <Widget>[
-          TextButton(
-              onPressed: () async {
-                if (this.editMode) {
-                  final newTeam = ScoutTeam(
-                      number: widget.team,
-                      nickname: nickController.text,
-                      likeStatus: likedKey,
-                      comments: commentsController.text,
-                      images: null,
-                      stats: null);
-                  db.setTeam(widget.team, newTeam.toJson()).then((value) {
-                    showSnackBar(context, 'Saved successfully!', kGreen);
                     setState(() {
                       this.editMode = !this.editMode;
                     });
-                    teamBeforeChanges = newTeam;
-                  }).catchError((error) {
-                    showSnackBar(
-                        context,
-                        'There was an error while saving. Please try again: $error',
-                        kRed);
-                  });
-                } else {
-                  setState(() {
-                    this.editMode = !this.editMode;
-                  });
-                }
-              },
-              child: Text(this.editMode ? 'Save' : 'Edit'))
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-        child: Form(
-            key: formKey,
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ToggleButtons(
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        children: buttons,
-                        isSelected: buttonState,
-                        onPressed: (int index) {
-                          if (editMode) {
-                            setState(() {
-                              setLikeStatusToggle(index);
-                            });
-                          }
-                        },
-                      )
-                    ],
-                  ),
-                  Expanded(
-                      child: Container(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('Team Nickname', style: label),
-                          TextFormField(
-                            controller: nickController,
-                            decoration: InputDecoration(
-                              enabled: this.editMode,
+                  }
+                },
+                child: Text(this.editMode ? 'Save' : 'Edit'))
+          ],
+        ),
+        body: Padding(
+            padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+            child: Form(
+                key: formKey,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ToggleButtons(
+                              borderColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              children: buttons,
+                              isSelected: buttonState,
+                              onPressed: (int index) {
+                                if (editMode) {
+                                  setState(() {
+                                    setLikeStatusToggle(index);
+                                  });
+                                }
+                              },
+                            )
+                          ],
+                        ),
+                      ),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            TextFormField(
+                              controller: nickController,
+                              decoration: InputDecoration(
+                                labelText: 'Team Name',
+                                enabled: this.editMode,
+                                border: OutlineInputBorder(),
+                              ),
                             ),
-                          ),
-                        ]),
-                  )),
-                  Expanded(
-                      child: Container(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('Comments', style: label),
-                          TextFormField(
-                            controller: commentsController,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 10,
-                            decoration: InputDecoration(
-                              alignLabelWithHint: true,
-                              border:
-                                  this.editMode ? OutlineInputBorder() : null,
-                              enabled: this.editMode,
-                            ),
-                          )
-                        ]),
-                  )),
-                ])),
-      ),
-    );
+                          ]),
+                      SizedBox(height: 30),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            TextFormField(
+                              controller: commentsController,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: 10,
+                              decoration: InputDecoration(
+                                labelText: 'Comments',
+                                alignLabelWithHint: true,
+                                border: OutlineInputBorder(),
+                                enabled: this.editMode,
+                              ),
+                            )
+                          ]),
+                    ]))));
   }
 }

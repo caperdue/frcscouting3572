@@ -19,7 +19,7 @@ signInWithGoogle() async {
     await auth.signInWithCredential(credential);
     final doc = await user.get();
     if (!doc.exists) {
-      createUser(3572);
+      createUser(null);
     }
 }
 

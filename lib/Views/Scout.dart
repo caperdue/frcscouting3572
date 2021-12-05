@@ -82,13 +82,16 @@ class _ScoutState extends State<Scout> {
               }),
         ),
         SafeArea(
-          child: FloatingActionButton(
-              child: Icon(
-                Icons.add,
-              ),
-              onPressed: () {
-                showTeamInitializer(this.context);
-              }),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FloatingActionButton(
+                child: Icon(
+                  Icons.add,
+                ),
+                onPressed: () {
+                  showTeamInitializer(this.context);
+                }),
+          ),
         )
       ],
     );

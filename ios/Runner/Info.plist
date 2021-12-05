@@ -2,6 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>App will use to help grab pictures for robots.</string>
+  <key>NSCameraUsageDescription</key>
+  <string>App will use to help take pictures for robots.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>App will use to help take video with audio for robots.</string>
+  
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+  </dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
