@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
 import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
-import 'package:frcscouting3572/Views/Shared/RobotImagePicker.dart';
+//import 'package:frcscouting3572/Views/Shared/RobotImagePicker.dart';
 
 import '../../Network/db.dart' as db;
 

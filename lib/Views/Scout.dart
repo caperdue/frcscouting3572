@@ -1,11 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../Constants.dart';
-import '../Network/db.dart' as db;
+import './PersonalScout.dart';
+import 'package:flutter/cupertino.dart';
 import '../Views/TeamCreation/TeamInitializer.dart';
-import '../Views/TeamCreation/ViewTeam.dart';
-import 'Shared/TeamCard.dart';
+import '../Constants.dart';
 
 class Scout extends StatefulWidget {
   const Scout({Key? key}) : super(key: key);
@@ -15,84 +12,68 @@ class Scout extends StatefulWidget {
 }
 
 class _ScoutState extends State<Scout> {
+  bool global = false;
+
   TextEditingController searchController = TextEditingController();
-  late Stream<QuerySnapshot> teamStream;
-  List<dynamic> filteredTeams = <int>[];
-  @override
-  void initState() {
-    super.initState();
-    teamStream = db.user.collection('ScoutData').snapshots();
-  }
 
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size;
     return Column(
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
+
       children: <Widget>[
-        CupertinoSearchTextField(
-          controller: searchController,
-          onChanged: (search) {},
-        ),
-        Expanded(
-          child: StreamBuilder(
-              stream: teamStream,
-              builder: (context, AsyncSnapshot snapshot) {
-                if (!snapshot.hasData) {
-                  return CircularProgressIndicator();
-                }
-                final teams = snapshot.data!.docs;
-                //Convert stream of data into widgets
-                return ListView.builder(
-                  itemCount: teams.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        int teamNum = teams[index]['number'];
-                        final scoutTeam =
-                            db.grabTeam(teamNum).then((teamSnapshot) {
-                              if (teamSnapshot.exists) {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              ViewTeam(
-                                                  team: teamNum, newTeam: false)));
-                              }
-                        });
-                      },
-                      child: Dismissible(
-                        key: UniqueKey(), // Prevent error from unique widget
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (direction) {
-                          db.deleteTeam(teams[index]['number']).then((value) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content:
-                                    const Text('Team successfully deleted')));
-                          });
-                        },
-                        child: TeamCard(
-                            number: teams[index]['number'],
-                            liked: teams[index]['likeStatus']),
-                        background: Container(color: kRed),
-                      ),
-                    );
-                  },
-                );
-              }),
-        ),
-        SafeArea(
+        Container(
+          color: kAquaMarine,
+          width: screenWidth.width,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FloatingActionButton(
-                child: Icon(
-                  Icons.add,
-                ),
-                onPressed: () {
-                  showTeamInitializer(this.context);
-                }),
+            padding: const EdgeInsets.all(4.0),
+            child: Text("Viewing data for GVSU Event 3/12 - 3/15", textAlign: TextAlign.center,),
           ),
-        )
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: screenWidth.width,
+              child: ElevatedButton(
+                style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.all(kNavy),
+                  backgroundColor:  MaterialStateProperty.all(Colors.blue[300]),
+
+    ),
+                onPressed: () {
+                  setState(() {
+                    global = !global;
+                  });
+                },
+                child: Text(
+                  "Toggle ${global ? 'personal' : 'team'} view mode",
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (!global)
+          CupertinoSearchTextField(
+            controller: searchController,
+            onChanged: (search) {},
+          ),
+        if (!global) PersonalScout(),
+        if (!global)
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: FloatingActionButton(
+                  child: Icon(
+                    Icons.add,
+                  ),
+                  onPressed: () {
+                    showTeamInitializer(this.context);
+                  }),
+            ),
+          )
       ],
     );
   }

@@ -24,29 +24,29 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: Text('FRC Scouting Login')),
-      body: Center (
-        child: ElevatedButton(
-          child: Text('Sign in with Google'),
-          onPressed: () {
-            signInWithGoogle().then((signedIn) {
-              user.get().then((value) {
-                if (value.get('team') != null) {
-                  Navigator.pushReplacementNamed(context, '/home');
-                } else {
-                  setState(() {
-                    showLoginForm(context);
-                  });
-                }
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(title: Text('FRC Scouting Login')),
+        body: Center(
+          child: ElevatedButton(
+            child: Text('Sign in with Google'),
+            onPressed: () {
+              signInWithGoogle().then((signedIn) {
+                user.get().then((value) {
+                  if (value.exists) {
+                    if (value.get('team') != null) {
+                      Navigator.pushReplacementNamed(context, '/home');
+                    } else {
+                      setState(() {
+                        showLoginForm(context);
+                      });
+                    }
+                  }
+                });
+              }).catchError((error) {
+                showDialogMessage(context, 'Error', error.toString());
               });
-            }).catchError((error) {
-              showDialogMessage(context, 'Error', error.toString());
-            });
-          },
-        ),
-
-      )
-    );
+            },
+          ),
+        ));
   }
 }

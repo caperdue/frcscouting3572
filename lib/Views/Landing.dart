@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Network/db.dart';
 import '../Network/Auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Landing extends StatefulWidget {
   const Landing({Key? key}) : super(key: key);
@@ -11,15 +12,16 @@ class Landing extends StatefulWidget {
 
 class _LandingState extends State<Landing> {
   Future<bool> checkAuth() async {
-    bool properlyAuthed; // Needs to have a user and assigned team
-    await user.get().then((value) {
-      if (value.get('team') != null) {
-        properlyAuthed = true;
-      }
-    });
-    properlyAuthed = false;
-    await Future.delayed(Duration(seconds: 2));
-    return properlyAuthed;
+    bool properlyAuthed = false;
+      await user.get().then((value) { //Check for user and assigned team
+          if (value.exists) {
+            if (value.get('team') != null) {
+              properlyAuthed = true;
+            }
+          }
+      });
+      await Future.delayed(Duration(seconds: 2));
+      return properlyAuthed;
   }
 
   @override

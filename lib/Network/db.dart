@@ -4,10 +4,13 @@ import '../Models/User.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
-DocumentReference user = db.collection('Users').doc(auth.currentUser!.uid);
+DocumentReference user = db.collection('Users').doc(auth.currentUser?.uid);
 CollectionReference users = db.collection('Users');
 CollectionReference teams = db.collection('Teams');
 
+void getUser() {
+
+}
 void createUser(int? team) {
   final newUser = User(team: team);
   print("running right now");
