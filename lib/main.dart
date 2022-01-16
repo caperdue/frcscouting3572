@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'Constants.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Views/Login.dart';
 import '../Views/Landing.dart';
 import '../Views/TabScreen.dart';
+import 'Network/firstAPI.dart' as firstAPI;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -21,7 +20,7 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    FirebaseFirestore.instance.collection('Users').get().then((value) => print(value));
+    firstAPI.getTeamsAtEvent();
   }
 
   @override

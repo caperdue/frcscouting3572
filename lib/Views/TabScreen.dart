@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frcscouting3572/Views/TeamScoutList.dart';
 import 'Scout.dart';
 import 'Settings.dart';
 
@@ -53,7 +54,7 @@ class _TabScreenState extends State<TabScreen> {
           ),
           body: TabBarView(children: [
             Scout(),
-            Text('Tab 2'),
+            Text("Overall stats view"),
             Text('Tab 3'),
             Settings(),
           ])),

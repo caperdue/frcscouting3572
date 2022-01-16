@@ -13,6 +13,7 @@ class Settings extends StatelessWidget {
           Navigator.pushReplacementNamed(context, '/');
         }).catchError((error) {
           print('There was an error signing out!');
+          Navigator.pushReplacementNamed(context, '/');
         });
       });
 

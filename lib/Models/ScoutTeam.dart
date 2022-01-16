@@ -1,12 +1,23 @@
 class ScoutTeam {
+  late String createdBy;
   late int number;
   late int likeStatus;
   late String comments;
+  late String eventCode;
+  late int season;
   late dynamic images;
   late Map<String, dynamic>? stats;
-  late String nickname;
+  //late String nickname;
 
-  ScoutTeam({required this.number, required this.nickname, required this.likeStatus, required this.comments, required this.images, required this.stats});
+  ScoutTeam({
+    required this.number, 
+    //required this.nickname,
+    required this.likeStatus, required this.comments,
+    required this.images, required this.stats,
+    required this.createdBy,
+    required this.eventCode,
+    required this.season
+  });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
@@ -15,7 +26,10 @@ class ScoutTeam {
     data['comments'] = this.comments;
     data['images'] = this.images;
     data['stats'] = this.stats;
-    data['nickname'] = this.nickname;
+   // data['nickname'] = this.nickname;
+    data['createdBy'] = this.createdBy;
+    data['season'] = this.season;
+    data['eventCode'] = this.eventCode;
     return data;
   }
 
@@ -25,6 +39,9 @@ class ScoutTeam {
     comments = json['comments'];
     images = json['images'];
     stats = json['stats'];
-    nickname = json['nickname'];
+   // nickname = json['nickname'];
+    createdBy = json['createdBy'];
+    season = json['season'];
+    eventCode = json['eventCode'];
   }
 }

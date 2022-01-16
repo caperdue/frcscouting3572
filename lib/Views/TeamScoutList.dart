@@ -6,71 +6,49 @@ import '../Constants.dart';
 
 import '../Network/db.dart' as db;
 import '../Network/Auth.dart';
+import '../Network/firstAPI.dart' as firstAPI;
 
-class PersonalScout extends StatefulWidget {
-  const PersonalScout({Key? key, required int order}) : super(key: key);
+class TeamScoutList extends StatefulWidget {
+  const TeamScoutList({Key? key}) : super(key: key);
 
   @override
-  _PersonalScoutState createState() => _PersonalScoutState();
+  _TeamScoutListState createState() => _TeamScoutListState();
 }
 
-class _PersonalScoutState extends State<PersonalScout> {
+class _TeamScoutListState extends State<TeamScoutList> {
   late Stream<QuerySnapshot> teamStream;
-  List<dynamic> filteredTeams = <int>[];
   @override
   void initState() {
     super.initState();
     print(auth.currentUser?.uid);
-    teamStream = db.db.collection("ScoutData").where("createdBy", isEqualTo: auth.currentUser?.uid).snapshots();
   }
 
   Widget build(BuildContext context) {
     return Expanded(
-      child: StreamBuilder(
-          stream: teamStream,
-          builder: (context, AsyncSnapshot snapshot) {
+      child: FutureBuilder(
+          future: firstAPI.getTeamsAtEvent(),
+          builder: (context, snapshot) {
             if (snapshot.hasData) {
-              final teams = snapshot.data?.docs;
-              //Convert stream of data into widgets
+              dynamic data = snapshot.data;
               return ListView.builder(
-                itemCount: teams.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      int teamNum = teams[index]['number'];
-                      final scoutTeam =
-                          db.grabTeam(teams[index].id).then((teamSnapshot) {
-                        if (teamSnapshot!.data() != null) {
-                          Navigator.push(
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      ViewTeam(team: teamNum, newTeam: false, uid: teams[index].id)));
-                        }
-                      });
-                    },
-                    child: Dismissible(
-                      key: UniqueKey(), // Prevent error from unique widget
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (direction) {
-                        db.deleteTeam(teams[index].id).then((value) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content:
-                                  const Text('Team successfully deleted')));
-                        });
+                                      ViewTeam(team: data[index]["teamNumber"], newTeam: false, uid: null, nickname: data[index]["nameShort"],)));
                       },
                       child: TeamCard(
-                          number: teams[index]['number'],
-                          liked: teams[index]['likeStatus']),
-                      background: Container(color: kRed),
-                    ),
-                  );
-                },
-              );
+                          number: data[index]["teamNumber"],
+                          liked: 1,
+                          nickname: data[index]["nameShort"]),
+                    );
+                  });
             }
-            else {
-              return Center(child: Text("No teams yet! Create a new one!"));
-            }
+            return Center(child: CircularProgressIndicator());
           }),
     );
   }

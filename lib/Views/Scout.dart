@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frcscouting3572/Network/db.dart';
+import 'package:frcscouting3572/Views/TeamScoutList.dart';
 import './PersonalScout.dart';
 import 'package:flutter/cupertino.dart';
 import '../Views/TeamCreation/TeamInitializer.dart';
@@ -13,8 +15,14 @@ class Scout extends StatefulWidget {
 
 class _ScoutState extends State<Scout> {
   bool global = false;
-
+  List<String> sortTeams = ['Newest to Oldest', 'Oldest to Newest', 'Most Liked', 'Least Liked'];
   TextEditingController searchController = TextEditingController();
+
+  @override
+  initState() {
+    super.initState();
+    getMostLiked();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +68,8 @@ class _ScoutState extends State<Scout> {
             controller: searchController,
             onChanged: (search) {},
           ),
-        if (!global) PersonalScout(),
+
+        if (!global) PersonalScout(order: 0),
         if (!global)
           SafeArea(
             child: Padding(
@@ -73,7 +82,9 @@ class _ScoutState extends State<Scout> {
                     showTeamInitializer(this.context);
                   }),
             ),
-          )
+          ),
+        if (global)
+          TeamScoutList(),
       ],
     );
   }

@@ -12,16 +12,24 @@ class Landing extends StatefulWidget {
 
 class _LandingState extends State<Landing> {
   Future<bool> checkAuth() async {
-    bool properlyAuthed = false;
-      await user.get().then((value) { //Check for user and assigned team
+    try {
+      bool properlyAuthed = false;
+      if (auth.currentUser != null) {
+        await user.get().then((value) { //Check for user and assigned team
           if (value.exists) {
             if (value.get('team') != null) {
               properlyAuthed = true;
             }
           }
-      });
+        });
+      }
       await Future.delayed(Duration(seconds: 2));
       return properlyAuthed;
+    }
+    catch(e) {
+      print("An error has occurred!!");
+    }
+    return false;
   }
 
   @override
