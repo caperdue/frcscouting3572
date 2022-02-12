@@ -111,5 +111,6 @@ Future<List<dynamic>>? getDistrictsFromSeason(int? season) async {
   return Future.error("District retrival not successful");
 }
 
+
 //Wrapper for API if any errors occur
 

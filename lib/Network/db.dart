@@ -9,6 +9,7 @@ CollectionReference teamData =
     db.collection('Users').doc(auth.currentUser?.uid).collection("TeamData");
 CollectionReference users = db.collection('Users');
 CollectionReference teams = db.collection('Teams');
+CollectionReference events = db.collection('Events');
 //General
 void createUser(int? team) {
   final newUser = User(team: team);
@@ -95,10 +96,6 @@ Future<List<dynamic>> getSeasons() async {
 //Event Settings Page
 Future saveEventAndSeason(String eventCode, int season) async {
   final userData = await user.get();
-
-  //print("Event Code: $eventCode, season: $season");
-  print(userData.get("season") == season);
-  print(userData.get("eventCode") == eventCode);
   if (userData.exists) {
     var futures = <Future>[];
     Future setSeason;
@@ -115,4 +112,10 @@ Future saveEventAndSeason(String eventCode, int season) async {
     }
     return await Future.wait(futures);
   }
+}
+//TODO: Save event to database and load from there for caching benefits.
+Future saveEvent(String eventCode) async {
+  final eventData = await events.get();
+
+
 }

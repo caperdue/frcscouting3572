@@ -3,6 +3,7 @@ class Event {
   late String name;
   late int year;
   late List<Map<int, String>> teams;
+  DateTime lastUpdated = DateTime.now();
 
   Event({required this.eventCode, required this.name, required this.year});
 
@@ -10,6 +11,7 @@ class Event {
     eventCode = json['year'];
     name = json['name'];
     year = json['year'];
+    lastUpdated = json['lastUpdated'];
   }
 
   Map<String, dynamic> toJson() {
@@ -18,6 +20,7 @@ class Event {
     data['name'] = this.name;
     data['year'] = this.year;
     data['teams'] = this.teams;
+    data['lastUpdated'] = this.lastUpdated;
     return data;
   }
 }
