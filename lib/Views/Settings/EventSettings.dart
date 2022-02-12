@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:frcscouting3572/Constants.dart';
+import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
 import 'package:intl/intl.dart';
 import '../../Network/firstAPI.dart';
 import '../../Network/db.dart';
@@ -45,12 +47,37 @@ class _EventSettingsState extends State<EventSettings> {
     });
   }
 
+  checkSelectedEvent(event) {
+    if (this.selectedEvent != null) {
+      if (this.selectedEvent["code"] == event["code"]) {
+        return Icon(Icons.check_box);
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text("Event Settings"),
+        actions: [
+          TextButton(
+              onPressed: () {
+                if (this.selectedEvent != null && this.season != null) {
+                  print("RUN");
+                  saveEventAndSeason(this.selectedEvent["code"], this.season!)
+                      .then(
+                    (value) {
+                      showSnackBar(context, "Save successful", kGreen);
+                    },
+                    //Add error handlign?
+                  );
+                }
+              },
+              child: Text("Save"))
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -67,17 +94,19 @@ class _EventSettingsState extends State<EventSettings> {
                     child: Form(
                       key: seasonKey,
                       child: TextFormField(
-                        onChanged: (text) {
-                          season = int.tryParse(seasonController.text);
-                          seasonKey.currentState?.validate();
+                      onChanged: (text) {
+                          if (seasonKey.currentState?.validate() == true) {
+                            season = int.tryParse(seasonController.text);
+                          }
                         },
                         validator: (text) {
-                          if (int.tryParse(seasonController.text) != null) {
+                          var season = int.tryParse(seasonController.text);
+                          if (season != null && season > 2005 && season <= DateTime.now().year) {
                             setState(() {});
                             return null;
                           }
                           setState(() {});
-                          return "Please enter only numbers";
+                          return "Invalid season input";
                         },
                         controller: seasonController,
                         decoration: InputDecoration(labelText: 'Season'),
@@ -101,6 +130,7 @@ class _EventSettingsState extends State<EventSettings> {
                           hint: Text("District"),
                           onChanged: (val) {
                             setState(() {
+                              this.selectedEvent = null;
                               this.district = val;
                             });
                           },
@@ -123,6 +153,7 @@ class _EventSettingsState extends State<EventSettings> {
                       onPressed: () {
                         setState(() {
                           this.district = null;
+                          this.selectedEvent = null;
                         });
                       },
                       child: Text("Clear Filter")),
@@ -143,19 +174,14 @@ class _EventSettingsState extends State<EventSettings> {
                                   DateTime.parse(data[index]["dateStart"]);
                               DateTime endDate =
                                   DateTime.parse(data[index]["dateEnd"]);
-                              
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    this.selectedEvent = index;
+                                    this.selectedEvent = data[index];
                                   });
-                                  
-                                  print(this.selectedEvent);
                                 },
                                 child: ListTile(
-                                  trailing: this.selectedEvent == index
-                                      ? Icon(Icons.check_box)
-                                      : null,
+                                  trailing: checkSelectedEvent(data[index]),
                                   title: Row(
                                     children: <Widget>[
                                       Expanded(

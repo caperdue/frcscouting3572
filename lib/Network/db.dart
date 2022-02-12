@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Auth.dart';
 import '../Models/User.dart';
-import 'firstAPI.dart' as firstAPI;
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -35,17 +34,6 @@ Future<DocumentSnapshot<Map<String, dynamic>>?> grabTeam(String uid) async {
   return await db.collection("ScoutData").doc(uid).get();
 }
 
-//Can potentially be removed
-Future deleteTeam(String uid) async {
-  try {
-    return await db.collection('ScoutData').doc(uid).delete();
-  } catch (e) {
-    print("An error has occurred!");
-  }
-  return null;
-}
-
-//Can potentially be removed
 Future setTeam(String? uid, Map<String, dynamic> data) async {
   if (uid != null) {
     return await db
@@ -61,13 +49,12 @@ Future setTeam(String? uid, Map<String, dynamic> data) async {
 
 Future<int> getMostLiked() async {
   int? team;
-  List<Map<String, int>> teams = [];
   int likes = 0;
   user.get().then((user) {
     team = user.get("team");
 
     if (team != null) {
-      var sample = users.where("team", isEqualTo: team).get().then((values) {
+      users.where("team", isEqualTo: team).get().then((values) {
         values.docs.forEach((result) {
           // For each user on that team...
           result.reference.collection("ScoutData").get().then((value) {
@@ -103,4 +90,29 @@ Future<List<dynamic>> getSeasons() async {
   seasonData = seasonData.toList();
   seasonData = seasonData..sort((a, b) => b.compareTo(a));
   return seasonData;
+}
+
+//Event Settings Page
+Future saveEventAndSeason(String eventCode, int season) async {
+  final userData = await user.get();
+
+  //print("Event Code: $eventCode, season: $season");
+  print(userData.get("season") == season);
+  print(userData.get("eventCode") == eventCode);
+  if (userData.exists) {
+    var futures = <Future>[];
+    Future setSeason;
+    if (userData.get("season") != season) {
+      setSeason =
+          userData.reference.set({"season": season}, SetOptions(merge: true));
+      futures.add(setSeason);
+    }
+    Future setEventCode;
+    if (userData.get("eventCode") != eventCode) {
+      setEventCode = userData.reference
+          .set({"eventCode": eventCode}, SetOptions(merge: true));
+      futures.add(setEventCode);
+    }
+    return await Future.wait(futures);
+  }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Network/db.dart';
 import '../../Constants.dart';
 
 class TeamCard extends StatefulWidget {

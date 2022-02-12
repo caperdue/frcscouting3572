@@ -10,11 +10,12 @@ final bytes = convert.utf8.encode(authToken);
 String encodedAuthToken = convert.base64.encode(bytes);
 
 Future getTeamsAtEvent() async {
+  var user = await getUserInformation();
   final teams;
   try {
     final response = await http.get(
         Uri.parse(
-            "https://frc-api.firstinspires.org/v3.0/2019/teams?eventCode=MIFOR"),
+            "https://frc-api.firstinspires.org/v3.0/2019/teams?eventCode=${user["eventCode"]}"),
         headers: {"Authorization": "Basic $encodedAuthToken"});
     if (response.statusCode == 200) {
       teams = convert.jsonDecode(response.body)['teams'];
@@ -81,9 +82,9 @@ Future<List<dynamic>>? getEventsFromSeason(
     int? season, String? district) async {
   print(district);
   if (season != null) {
-    final response = await http.get(
-        Uri.parse(
-            "https://frc-api.firstinspires.org/v3.0/$season/events?district=${district != null ? json.decode(district)["code"] : ""}"),
+    final url =
+        "https://frc-api.firstinspires.org/v3.0/$season/events${district != null ? ("?districtCode=${json.decode(district)["code"]}") : ""}";
+    final response = await http.get(Uri.parse(url),
         headers: {"Authorization": "Basic $encodedAuthToken"});
     if (response.statusCode == 200) {
       return convert.jsonDecode(response.body)["Events"].toList();
@@ -109,3 +110,6 @@ Future<List<dynamic>>? getDistrictsFromSeason(int? season) async {
   }
   return Future.error("District retrival not successful");
 }
+
+//Wrapper for API if any errors occur
+

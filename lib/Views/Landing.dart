@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Network/db.dart';
 import '../Network/Auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class Landing extends StatefulWidget {
   const Landing({Key? key}) : super(key: key);

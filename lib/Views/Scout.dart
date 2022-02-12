@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Network/db.dart';
 import 'package:frcscouting3572/Views/TeamScoutList.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +11,7 @@ class Scout extends StatefulWidget {
 }
 
 class _ScoutState extends State<Scout> {
+  dynamic user;
   List<String> sortTeams = [
     'Newest to Oldest',
     'Oldest to Newest',
@@ -19,12 +19,16 @@ class _ScoutState extends State<Scout> {
     'Least Liked'
   ];
   TextEditingController searchController = TextEditingController();
-
   @override
   initState() {
     super.initState();
     getMostLiked();
     //updateEventDataIfNeeded();
+    getUser();
+  }
+
+  void getUser() async {
+    user = await getUserInformation();
   }
 
   @override

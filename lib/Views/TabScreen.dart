@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Views/TeamScoutList.dart';
 import 'Scout.dart';
 import 'Settings/Settings.dart';
 

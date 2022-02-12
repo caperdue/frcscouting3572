@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Views/TeamCreation/ViewTeam.dart';
 import 'Shared/TeamCard.dart';
 
-import '../Network/Auth.dart';
 import '../Network/firstAPI.dart' as firstAPI;
 
 class TeamScoutList extends StatefulWidget {
