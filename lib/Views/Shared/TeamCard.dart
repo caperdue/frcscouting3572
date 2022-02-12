@@ -28,6 +28,7 @@ class _TeamCardState extends State<TeamCard> {
       )),
       child: ListTile(
           title: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Container(
                 width: screenSize.width / 6,
@@ -49,7 +50,13 @@ class _TeamCardState extends State<TeamCard> {
                   overflow: TextOverflow.fade,
                 )),
                   getTeamStatus(),
-                  Text("0 likes"),
+                  Text("0"),
+                  SizedBox(width: 2),
+                  Icon(Icons.thumb_up_alt_outlined, size: 12, color: Colors.green),
+                  SizedBox(width: 4),
+                  Text("5"),
+                  SizedBox(width: 2),
+                  Icon(Icons.thumb_down_outlined, size: 12, color: Colors.red)
 
             ],
           ),

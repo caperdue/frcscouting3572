@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Network/db.dart';
 import 'package:frcscouting3572/Views/TeamScoutList.dart';
-import './PersonalScout.dart';
 import 'package:flutter/cupertino.dart';
-import '../Views/TeamCreation/TeamInitializer.dart';
 import '../Constants.dart';
 
 class Scout extends StatefulWidget {
@@ -14,14 +12,19 @@ class Scout extends StatefulWidget {
 }
 
 class _ScoutState extends State<Scout> {
-  bool global = false;
-  List<String> sortTeams = ['Newest to Oldest', 'Oldest to Newest', 'Most Liked', 'Least Liked'];
+  List<String> sortTeams = [
+    'Newest to Oldest',
+    'Oldest to Newest',
+    'Most Liked',
+    'Least Liked'
+  ];
   TextEditingController searchController = TextEditingController();
 
   @override
   initState() {
     super.initState();
     getMostLiked();
+    //updateEventDataIfNeeded();
   }
 
   @override
@@ -29,62 +32,23 @@ class _ScoutState extends State<Scout> {
     var screenWidth = MediaQuery.of(context).size;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-
       children: <Widget>[
         Container(
           color: kAquaMarine,
           width: screenWidth.width,
           child: Padding(
             padding: const EdgeInsets.all(4.0),
-            child: Text("Viewing data for GVSU Event 3/12 - 3/15", textAlign: TextAlign.center,),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: screenWidth.width,
-              child: ElevatedButton(
-                style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all(kNavy),
-                  backgroundColor:  MaterialStateProperty.all(Colors.blue[300]),
-
-    ),
-                onPressed: () {
-                  setState(() {
-                    global = !global;
-                  });
-                },
-                child: Text(
-                  "Toggle ${global ? 'personal' : 'team'} view mode",
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          ],
-        ),
-        if (!global)
-          CupertinoSearchTextField(
-            controller: searchController,
-            onChanged: (search) {},
-          ),
-
-        if (!global) PersonalScout(order: 0),
-        if (!global)
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: FloatingActionButton(
-                  child: Icon(
-                    Icons.add,
-                  ),
-                  onPressed: () {
-                    showTeamInitializer(this.context);
-                  }),
+            child: Text(
+              "Viewing data for GVSU Event 3/12 - 3/15",
+              textAlign: TextAlign.center,
             ),
           ),
-        if (global)
-          TeamScoutList(),
+        ),
+        CupertinoSearchTextField(
+          controller: searchController,
+          onChanged: (search) {},
+        ),
+        TeamScoutList(),
       ],
     );
   }

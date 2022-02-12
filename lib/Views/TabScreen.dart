@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Views/TeamScoutList.dart';
 import 'Scout.dart';
-import 'Settings.dart';
+import 'Settings/Settings.dart';
 
 class TabScreen extends StatefulWidget {
   const TabScreen({Key? key}) : super(key: key);

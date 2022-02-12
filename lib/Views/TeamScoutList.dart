@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Views/TeamCreation/ViewTeam.dart';
 import 'Shared/TeamCard.dart';
-import '../Constants.dart';
 
-import '../Network/db.dart' as db;
 import '../Network/Auth.dart';
 import '../Network/firstAPI.dart' as firstAPI;
 
@@ -20,7 +18,6 @@ class _TeamScoutListState extends State<TeamScoutList> {
   @override
   void initState() {
     super.initState();
-    print(auth.currentUser?.uid);
   }
 
   Widget build(BuildContext context) {
@@ -48,7 +45,11 @@ class _TeamScoutListState extends State<TeamScoutList> {
                     );
                   });
             }
-            return Center(child: CircularProgressIndicator());
+            return Center(child: Column(
+              children: [
+                CircularProgressIndicator(),
+              ],
+            ));
           }),
     );
   }

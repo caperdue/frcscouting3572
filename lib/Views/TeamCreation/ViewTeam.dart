@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
@@ -232,23 +231,21 @@ class _ViewTeamState extends State<ViewTeam> {
                   children: <Widget>[
                     SizedBox(height: 12),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: 
-                          ToggleButtons(
-                            borderColor: Colors.transparent,
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            children: buttons,
-                            isSelected: buttonState,
-                            onPressed: (int index) {
-                              if (editMode) {
-                                setState(() {
-                                  setLikeStatusToggle(index);
-                                });
-                              }
-                            },
-                          )
-                    ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: ToggleButtons(
+                          borderColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          children: buttons,
+                          isSelected: buttonState,
+                          onPressed: (int index) {
+                            if (editMode) {
+                              setState(() {
+                                setLikeStatusToggle(index);
+                              });
+                            }
+                          },
+                        )),
                     TextFormField(
                       controller: commentsController,
                       keyboardType: TextInputType.multiline,
@@ -261,25 +258,29 @@ class _ViewTeamState extends State<ViewTeam> {
                       ),
                     ),
                     Card(
-                      child: ListTile(title: Text("STATS", style:TextStyle(color: kNavy, fontWeight: FontWeight.bold)))
-                    ),
+                        child: ListTile(
+                            title: Text("STATS",
+                                style: TextStyle(
+                                    color: kNavy,
+                                    fontWeight: FontWeight.bold)))),
                     Card(
                         child: ListTile(
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                SizedBox(height:5),
+                                SizedBox(height: 5),
                                 Text("SCHOOL:"),
-                                Text("ROOKIE YEAR:" ),
-                                Text("CITY:" ),
-                                Text("STATE:" ),
+                                Text("ROOKIE YEAR:"),
+                                Text("CITY:"),
+                                Text("STATE:"),
                                 Text("WEBSITE:"),
-                                
                               ],
                             ),
                             title: Text(
                                 "MORE ABOUT ${widget.nickname != null ? widget.nickname : widget.team}",
-                                style: TextStyle(color: kNavy, fontWeight: FontWeight.bold)))),
+                                style: TextStyle(
+                                    color: kNavy,
+                                    fontWeight: FontWeight.bold)))),
                   ],
                 ),
               ),
