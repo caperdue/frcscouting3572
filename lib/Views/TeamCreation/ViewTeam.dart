@@ -182,6 +182,7 @@ class _ViewTeamState extends State<ViewTeam> {
                         season: season,
                         eventCode: eventCode,
                       );
+                      // Check if scoutData already exists with this event
                       db.setTeam(widget.uid, newTeam.toJson()).then((value) {
                         showSnackBar(context, 'Saved successfully!', kGreen);
                         setState(() {
@@ -189,8 +190,6 @@ class _ViewTeamState extends State<ViewTeam> {
                         });
                         teamBeforeChanges = newTeam;
                       });
-                    }).catchError((e) {
-                      print(e);
                     });
                   } catch (e) {
                     showSnackBar(

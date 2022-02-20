@@ -5,11 +5,10 @@ import '../Models/User.dart';
 FirebaseFirestore db = FirebaseFirestore.instance;
 
 DocumentReference user = db.collection('Users').doc(auth.currentUser?.uid);
-CollectionReference teamData =
-    db.collection('Users').doc(auth.currentUser?.uid).collection("TeamData");
 CollectionReference users = db.collection('Users');
 CollectionReference teams = db.collection('Teams');
 CollectionReference events = db.collection('Events');
+CollectionReference scoutData = db.collection('ScoutData');
 //General
 void createUser(int? team) {
   final newUser = User(team: team);
@@ -113,9 +112,24 @@ Future saveEventAndSeason(String eventCode, int season) async {
     return await Future.wait(futures);
   }
 }
+
 //TODO: Save event to database and load from there for caching benefits.
 Future saveEvent(String eventCode) async {
   final eventData = await events.get();
+}
 
+// View Team
+Future getScoutData(eventCode, teamNum, season) async {
+  if (auth.currentUser != null) {
+    Query scoutResult = scoutData
+        .where('eventCode', isEqualTo: eventCode)
+        .where('number', isEqualTo: teamNum)
+        .where('season', isEqualTo: season)
+        .where('createdBy', isEqualTo: auth.currentUser!.uid);
 
+    var results = await scoutResult.get();
+    if (results.size >= 1) {
+      return results.docs[0].reference;
+    }
+  }
 }

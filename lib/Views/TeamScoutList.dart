@@ -4,6 +4,7 @@ import '../Views/TeamCreation/ViewTeam.dart';
 import 'Shared/TeamCard.dart';
 
 import '../Network/firstAPI.dart' as firstAPI;
+import '../Network/db.dart';
 
 class TeamScoutList extends StatefulWidget {
   const TeamScoutList({Key? key}) : super(key: key);
@@ -31,11 +32,21 @@ class _TeamScoutListState extends State<TeamScoutList> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ViewTeam(team: data[index]["teamNumber"], newTeam: false, uid: null, nickname: data[index]["nameShort"],)));
+                        getUserInformation().then((user) {
+                          getScoutData(user["eventCode"],
+                                  data[index]["teamNumber"], user["season"])
+                              .then((scoutData) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ViewTeam(
+                                            team: data[index]["teamNumber"],
+                                            newTeam: false,
+                                            uid: scoutData?.id,
+                                            nickname: data[index]["nameShort"],
+                                          )));
+                          });
+                        });
                       },
                       child: TeamCard(
                           number: data[index]["teamNumber"],
@@ -44,9 +55,10 @@ class _TeamScoutListState extends State<TeamScoutList> {
                     );
                   });
             }
-            return Center(child: Column(
+            return Center(
+                child: Column(
               children: [
-                CircularProgressIndicator(),
+              //  CircularProgressIndicator(),
               ],
             ));
           }),
