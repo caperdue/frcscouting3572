@@ -39,7 +39,7 @@ class _EventSettingsState extends State<EventSettings> {
         season = DateTime.now().year;
       }
 
-      getDistrictsFromSeason(season)!.then((response) {
+      getDistrictsFromSeason(season).then((response) {
         setState(() {
           this.districts = response;
         });

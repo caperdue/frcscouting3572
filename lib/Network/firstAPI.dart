@@ -2,30 +2,26 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert' as convert;
-import '../Network/db.dart';
+import '../Network/db.dart' as db;
 
 String authToken = "cpchicken:c268bdc2-540d-4857-96bf-a7ed2d877fd5";
 final bytes = convert.utf8.encode(authToken);
 String encodedAuthToken = convert.base64.encode(bytes);
 
 Future getTeamsAtEvent() async {
-  var user = await getUserInformation();
-  final teams;
-  try {
-    final response = await http.get(
-        Uri.parse(
-            "https://frc-api.firstinspires.org/v3.0/2019/teams?eventCode=${user["eventCode"]}"),
-        headers: {"Authorization": "Basic $encodedAuthToken"});
-    if (response.statusCode == 200) {
-      teams = convert.jsonDecode(response.body)['teams'];
-      return teams;
-    } else {
-      print("Failed to return teams from event");
-    }
-  } catch (e) {
-    print(e);
+  var user = await db.getUserInformation();
+  var teams;
+  final response = await http.get(
+      Uri.parse(
+          "https://frc-api.firstinspires.org/v3.0/2019/teams?eventCode=${user["eventCode"]}"),
+      headers: {"Authorization": "Basic $encodedAuthToken"});
+  if (response.statusCode == 200) {
+    teams = convert.jsonDecode(response.body)['teams'];
+    return teams;
   }
+  return Future.error("Failed to return teams from event");
 }
 
 Future getTeamInfo(int team) async {
@@ -35,47 +31,8 @@ Future getTeamInfo(int team) async {
       headers: {"Authorization": "Basic $encodedAuthToken"});
   if (response.statusCode == 200) {
     return convert.jsonDecode(response.body)["teams"][0];
-  } else {
-    print("Failed to return team");
   }
-}
-
-Future updateEventDataIfNeeded() async {
-  final teams;
-  try {
-    final response = await http.get(
-        Uri.parse(
-            "https://frc-api.firstinspires.org/v3.0/2019/teams?eventCode=MIFOR"),
-        headers: {"Authorization": "Basic $encodedAuthToken"});
-    if (response.statusCode == 200) {
-      teams = convert.jsonDecode(response.body)['teams'];
-      user.get().then((user) {
-        db
-            .collection("Events")
-            .where("year", isEqualTo: user.get("year"))
-            .where("eventCode", isEqualTo: user.get("eventCode"))
-            .get()
-            .then((event) {
-          Map<String, List<Map<String, dynamic>>> teamsFromAPI = {"teams": []};
-          getTeamsAtEvent().then((teams) {
-            teams.forEach((team) {
-              teamsFromAPI["teams"]?.add({
-                "number": team["teamNumber"],
-                "nickname": team["nameShort"]
-              });
-            });
-            event.docs.first.reference
-                .set(teamsFromAPI, SetOptions(merge: true));
-          });
-        });
-      });
-      return teams;
-    } else {
-      print("Failed to return teams from event");
-    }
-  } catch (e) {
-    print(e);
-  }
+  return Future.error("Failed to return team");
 }
 
 Future<List<dynamic>>? getEventsFromSeason(
@@ -95,7 +52,7 @@ Future<List<dynamic>>? getEventsFromSeason(
   return [];
 }
 
-Future<List<dynamic>>? getDistrictsFromSeason(int? season) async {
+Future<List<dynamic>> getDistrictsFromSeason(int? season) async {
   if (season != null) {
     final response = await http.get(
         Uri.parse("https://frc-api.firstinspires.org/v3.0/$season/districts"),
@@ -104,13 +61,41 @@ Future<List<dynamic>>? getDistrictsFromSeason(int? season) async {
       List<dynamic> decoded =
           json.decode(response.body)["districts"].map((item) => item).toList();
       return decoded;
-    } else {
-      print("Failed to return districts");
     }
   }
   return Future.error("District retrival not successful");
 }
 
+Future<Map<String, String>> getEventInformation(
+    String eventCode, int season) async {
+  final response = await http.get(
+      Uri.parse(
+          "https://frc-api.firstinspires.org/v3.0/$season/events?eventCode=$eventCode"),
+      headers: {"Authorization": "Basic $encodedAuthToken"});
 
-//Wrapper for API if any errors occur
+  final seasonNameResponse = await http.get(
+      Uri.parse("https://frc-api.firstinspires.org/v3.0/$season"),
+      headers: {"Authorization": "Basic $encodedAuthToken"});
 
+  if (response.statusCode == 200 && seasonNameResponse.statusCode == 200) {
+    String eventName = json.decode(response.body)["Events"][0]["name"];
+    String startDateString =
+        json.decode(response.body)["Events"][0]["dateStart"];
+    String endDateString = json.decode(response.body)["Events"][0]["dateEnd"];
+
+    DateTime startDate = DateTime.parse(startDateString).toLocal();
+    DateTime endDate = DateTime.parse(endDateString).toLocal();
+
+    startDateString = DateFormat.MMMEd().format(startDate);
+    endDateString = DateFormat.MMMEd().format(endDate);
+
+    String seasonName = json.decode(seasonNameResponse.body)["gameName"];
+    return {
+      "eventName": eventName,
+      "seasonName": seasonName,
+      "startDate": startDateString,
+      "endDate": endDateString
+    };
+  }
+  return Future.error("There was a problem retrieving the event information.");
+}

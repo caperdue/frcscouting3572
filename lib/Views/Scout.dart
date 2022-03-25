@@ -1,4 +1,7 @@
-import 'package:frcscouting3572/Network/db.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Network/db.dart' as db;
+import 'package:frcscouting3572/Network/firstAPI.dart';
 import 'package:frcscouting3572/Views/TeamScoutList.dart';
 import 'package:flutter/cupertino.dart';
 import '../Constants.dart';
@@ -22,38 +25,19 @@ class _ScoutState extends State<Scout> {
   @override
   initState() {
     super.initState();
-    getMostLiked();
-    //updateEventDataIfNeeded();
-    getUser();
-  }
-
-  void getUser() async {
-    user = await getUserInformation();
   }
 
   @override
   Widget build(BuildContext context) {
-    var screenWidth = MediaQuery.of(context).size;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          color: kAquaMarine,
-          width: screenWidth.width,
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(
-              "Viewing data for GVSU Event 3/12 - 3/15",
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-        CupertinoSearchTextField(
-          controller: searchController,
-          onChanged: (search) {},
-        ),
-        TeamScoutList(),
-      ],
-    );
+  
+    return Column(children: <Widget>[
+      CupertinoSearchTextField(
+        controller: searchController,
+        onChanged: (search) {
+          
+        },
+      ),
+      TeamScoutList(),
+    ]);
   }
 }

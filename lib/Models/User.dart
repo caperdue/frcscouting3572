@@ -1,8 +1,8 @@
 class User {
   int? team;
   int? scoutData;
-  int? season = DateTime.now().year;
-  int? eventCode;
+  int season = DateTime.now().year;
+  String? eventCode;
 
   User({this.team});
 

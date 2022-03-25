@@ -8,12 +8,13 @@ import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
 import '../../Network/db.dart' as db;
 
 class ViewTeam extends StatefulWidget {
-  final int team;
-  final bool newTeam;
-  final String? nickname;
-  String? uid;
+  ScoutTeam scoutTeam;
+  final Map<String, dynamic> additionalTeamInfo;
+  final String? uid;
   ViewTeam(
-      {required this.team, required this.newTeam, this.uid, this.nickname});
+      {required this.scoutTeam,
+      required this.additionalTeamInfo,
+      required this.uid});
 
   @override
   _ViewTeamState createState() => _ViewTeamState();
@@ -21,8 +22,9 @@ class ViewTeam extends StatefulWidget {
 
 class _ViewTeamState extends State<ViewTeam> {
   var formKey = GlobalKey<FormState>();
+  var test;
   dynamic teamInfo;
-  int likedKey = 1; //Default slider value
+  late int likedKey; //Default slider value
   bool editMode = false;
   DocumentSnapshot<Map<String, dynamic>>?
       scoutTeamSnapshot; //Capture to do things later
@@ -40,40 +42,16 @@ class _ViewTeamState extends State<ViewTeam> {
   @override
   void initState() {
     super.initState();
-    this.editMode = widget.newTeam;
-    reloadTeamScoutInfo();
+    this.editMode = false;
+    commentsController.text = widget.scoutTeam.comments;
+    likedKey = widget.scoutTeam.likeStatus;
+    setLikeStatusToggle(likedKey);
   }
 
-  void grabInitialTeamScoutInfo() {}
   void setLikeStatusToggle(int selected) {
     for (int i = 0; i < buttonState.length; i++) {
       buttonState[i] = i == selected;
       likedKey = selected;
-    }
-  }
-
-  void reloadTeamScoutInfo() {
-    try {
-      if (widget.uid != null) {
-        db.grabTeam(widget.uid!).then((team) {
-          //Construct object
-          if (team!.data()!.isNotEmpty) {
-            setState(() {
-              scoutTeamSnapshot = team;
-              ScoutTeam initial = new ScoutTeam.fromJson(
-                  team.data()!); //Should only return one document from query
-              teamBeforeChanges = initial;
-              commentsController.text = initial.comments;
-
-              //Set the like status
-              buttonState[1] = false;
-              buttonState[initial.likeStatus] = true;
-            });
-          }
-        });
-      }
-    } catch (e) {
-      print("Error reloading info: $e");
     }
   }
 
@@ -158,8 +136,8 @@ class _ViewTeamState extends State<ViewTeam> {
             : BackButton(),
         title: Text(
           this.editMode
-              ? 'Edit Team \n${widget.team}'
-              : 'View Team \n${widget.team}',
+              ? 'Edit Team \n${widget.scoutTeam.number}'
+              : 'View Team \n${widget.scoutTeam.number}',
           textAlign: TextAlign.center,
         ),
         actions: <Widget>[
@@ -173,7 +151,7 @@ class _ViewTeamState extends State<ViewTeam> {
                       season = user["season"];
                       eventCode = user["eventCode"];
                       final newTeam = ScoutTeam(
-                        number: widget.team,
+                        number: widget.scoutTeam.number,
                         likeStatus: likedKey,
                         comments: commentsController.text,
                         images: null,
@@ -187,8 +165,8 @@ class _ViewTeamState extends State<ViewTeam> {
                         showSnackBar(context, 'Saved successfully!', kGreen);
                         setState(() {
                           this.editMode = !this.editMode;
+                          teamBeforeChanges = newTeam;
                         });
-                        teamBeforeChanges = newTeam;
                       });
                     });
                   } catch (e) {
@@ -208,18 +186,15 @@ class _ViewTeamState extends State<ViewTeam> {
       ),
       body: Stack(
         children: [
-          if (widget.nickname != null)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(widget.nickname!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: kNavy,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20)),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Team Nickname Here",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: kNavy, fontWeight: FontWeight.bold, fontSize: 20)),
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
             child: Form(
@@ -275,8 +250,7 @@ class _ViewTeamState extends State<ViewTeam> {
                                 Text("WEBSITE:"),
                               ],
                             ),
-                            title: Text(
-                                "MORE ABOUT ${widget.nickname != null ? widget.nickname : widget.team}",
+                            title: Text("Additional Information",
                                 style: TextStyle(
                                     color: kNavy,
                                     fontWeight: FontWeight.bold)))),

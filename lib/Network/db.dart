@@ -1,13 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frcscouting3572/Models/ScoutTeam.dart';
+import 'package:frcscouting3572/Views/Scout.dart';
 import 'Auth.dart';
 import '../Models/User.dart';
+import 'firstAPI.dart' as firstAPI;
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
 DocumentReference user = db.collection('Users').doc(auth.currentUser?.uid);
 CollectionReference users = db.collection('Users');
 CollectionReference teams = db.collection('Teams');
-CollectionReference events = db.collection('Events');
 CollectionReference scoutData = db.collection('ScoutData');
 //General
 void createUser(int? team) {
@@ -15,7 +17,7 @@ void createUser(int? team) {
   users.doc(auth.currentUser!.uid).set(newUser.toJson());
 }
 
-Future getUserInformation() async {
+Future<DocumentSnapshot<Object?>> getUserInformation() async {
   return await user.get();
 }
 
@@ -30,7 +32,8 @@ bool checkIfTeamExists(String teamString) {
   return exists;
 }
 
-Future<DocumentSnapshot<Map<String, dynamic>>?> grabTeam(String uid) async {
+Future<DocumentSnapshot<Map<String, dynamic>>?> getScoutDataByByUID(
+    String uid) async {
   return await db.collection("ScoutData").doc(uid).get();
 }
 
@@ -81,7 +84,8 @@ Future<int> getMostLiked() async {
   return likes;
 }
 
-// Settings page
+// Settings page 
+//TODO: Remove this logic???
 Future<List<dynamic>> getSeasons() async {
   var seasons = await db.collection("Seasons").get();
   List seasonData = seasons.docs.map((seasonItem) {
@@ -113,23 +117,95 @@ Future saveEventAndSeason(String eventCode, int season) async {
   }
 }
 
-//TODO: Save event to database and load from there for caching benefits.
-Future saveEvent(String eventCode) async {
-  final eventData = await events.get();
+Future<Map<String, int>> getTotalLikesDislikes(int teamNumber) async {
+  int likeCount = 0;
+  int dislikeCount = 0;
+  DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
+      await user.get() as DocumentSnapshot<Map<String, dynamic>>;
+  final userDoc = userDocSnapshot.data();
+  final userObj = User.fromJson(userDoc!);
+  var teamDocSnapshot = await scoutData
+      .where("number", isEqualTo: teamNumber)
+      .where("eventCode", isEqualTo: userObj.eventCode)
+      .where("season", isEqualTo: userObj.season)
+      .get();
+
+  var teamDocs = teamDocSnapshot.docs;
+  for (var teamDoc in teamDocs) {
+    switch (teamDoc.get("likeStatus")) {
+      case 0:
+        dislikeCount++;
+        break;
+      case 2:
+        likeCount++;
+        break;
+    }
+  }
+
+  return {"likes": likeCount, "dislikes": dislikeCount};
 }
 
 // View Team
-Future getScoutData(eventCode, teamNum, season) async {
+
+Future<Query?> getScoutDataByEvent() async {
+  DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
+      await user.get() as DocumentSnapshot<Map<String, dynamic>>;
+  final userDoc = userDocSnapshot.data();
+  final userObj = User.fromJson(userDoc!);
+
   if (auth.currentUser != null) {
     Query scoutResult = scoutData
-        .where('eventCode', isEqualTo: eventCode)
-        .where('number', isEqualTo: teamNum)
-        .where('season', isEqualTo: season)
+        .where('eventCode', isEqualTo: userObj.eventCode)
+        .where('season', isEqualTo: userObj.season)
+        .where('createdBy', isEqualTo: auth.currentUser!.uid);
+
+    return scoutResult;
+  }
+  return null;
+}
+
+Future<QueryDocumentSnapshot<Object?>?> getScoutDataByTeam(int team) async {
+  DocumentSnapshot<Map<String, dynamic>> userDocSnapshot =
+      await user.get() as DocumentSnapshot<Map<String, dynamic>>;
+  final userDoc = userDocSnapshot.data();
+  final userObj = User.fromJson(userDoc!);
+
+  if (auth.currentUser != null) {
+    Query scoutResult = scoutData
+        .where('eventCode', isEqualTo: userObj.eventCode)
+        .where('number', isEqualTo: team)
+        .where('season', isEqualTo: userObj.season)
         .where('createdBy', isEqualTo: auth.currentUser!.uid);
 
     var results = await scoutResult.get();
-    if (results.size >= 1) {
-      return results.docs[0].reference;
+    if (results.size == 1) {
+      return results.docs.first;
+    } else {
+      print("There was an error grabbing the scout data");
     }
   }
+  return null;
+}
+
+Future<Map<int, QueryDocumentSnapshot<Object?>>>
+    getUserTeamAndSeasonScoutData() async {
+  var userDocSnapshot = await user.get();
+  var userDoc = userDocSnapshot.data() as Map<String, dynamic>;
+  final userObj = User.fromJson(userDoc);
+  Map<int, QueryDocumentSnapshot<Object?>> teams = {};
+  if (auth.currentUser != null) {
+    Query scoutResult = scoutData
+        .where('eventCode', isEqualTo: userObj.eventCode)
+        .where('season', isEqualTo: userObj.season)
+        .where('createdBy', isEqualTo: auth.currentUser!.uid);
+
+    var results = await scoutResult.get();
+    var docs = results.docs;
+
+    for (var team in docs) {
+      //ScoutTeam scoutTeam = new ScoutTeam.fromJson(newTeam);
+      teams[team.get("number")] = team;
+    }
+  }
+  return teams;
 }

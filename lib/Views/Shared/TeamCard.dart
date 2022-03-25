@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:frcscouting3572/Models/ScoutTeam.dart';
 import '../../Constants.dart';
 
 class TeamCard extends StatefulWidget {
-  final int? liked;
-  final int number;
-  final bool? global;
+  final ScoutTeam scoutTeam;
   final String? nickname;
-
-  const TeamCard(
-      {Key? key, this.liked, this.nickname, required this.number, this.global})
-      : super(key: key);
+  final int numLikes;
+  final int numDislikes;
+  const TeamCard({required this.scoutTeam, required this.nickname, required this.numLikes, required this.numDislikes});
 
   @override
   _TeamCardState createState() => _TeamCardState();
@@ -32,7 +30,7 @@ class _TeamCardState extends State<TeamCard> {
               Container(
                 width: screenSize.width / 6,
                 child: Text(
-                  widget.number.toString(),
+                  widget.scoutTeam.number.toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: kNavy, fontWeight: FontWeight.bold),
                 ),
@@ -48,34 +46,33 @@ class _TeamCardState extends State<TeamCard> {
                   maxLines: 3,
                   overflow: TextOverflow.fade,
                 )),
-                  getTeamStatus(),
-                  Text("0"),
-                  SizedBox(width: 2),
-                  Icon(Icons.thumb_up_alt_outlined, size: 12, color: Colors.green),
-                  SizedBox(width: 4),
-                  Text("5"),
-                  SizedBox(width: 2),
-                  Icon(Icons.thumb_down_outlined, size: 12, color: Colors.red)
-
+              //likeView(),
+              Text("${widget.numLikes}"),
+              SizedBox(width: 2),
+              Icon(widget.scoutTeam.likeStatus == 2 ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined, size: 12, color: Colors.green),
+              SizedBox(width: 4),
+              Text("${widget.numDislikes}"),
+              SizedBox(width: 2),
+              Icon(widget.scoutTeam.likeStatus == 0 ? Icons.thumb_down_alt_rounded : Icons.thumb_down_alt_outlined, size: 12, color: Colors.red)
             ],
           ),
-             //getTeamStatus(),
-               
+          //LikeView(),
+
           tileColor: Colors.white38),
     );
   }
 
-  Widget getTeamStatus() {
-    switch (widget.liked) {
+  Widget likeView() {
+    switch (widget.scoutTeam.likeStatus) {
       case 0:
         return Icon(
-          Icons.thumb_down,
+          Icons.thumb_down_alt_rounded,
           color: kRed,
         );
       case 1:
         return Text('');
       case 2:
-        return Icon(Icons.thumb_up, color: kGreen);
+        return Icon(Icons.thumb_up_alt_rounded, color: kGreen);
       default:
         return Text('none');
     }
