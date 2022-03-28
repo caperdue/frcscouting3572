@@ -26,7 +26,7 @@ class _TeamScoutListState extends State<TeamScoutList> {
     super.initState();
     listenForScoutDataChanges();
   }
-
+  // TODO: THIS doesn't always work properly. Doesn't say I liked it
   // Listen for document changes and trigger a rebuild if necessary.
   void listenForScoutDataChanges() {
     db.getScoutDataByEvent().then((Query? scoutDataQuery) {

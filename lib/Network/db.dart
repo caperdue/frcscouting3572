@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frcscouting3572/Models/ScoutTeam.dart';
-import 'package:frcscouting3572/Views/Scout.dart';
 import 'Auth.dart';
 import '../Models/User.dart';
-import 'firstAPI.dart' as firstAPI;
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -128,6 +125,7 @@ Future<Map<String, int>> getTotalLikesDislikes(int teamNumber) async {
       .where("number", isEqualTo: teamNumber)
       .where("eventCode", isEqualTo: userObj.eventCode)
       .where("season", isEqualTo: userObj.season)
+      .where("team", isEqualTo: userObj.team)
       .get();
 
   var teamDocs = teamDocSnapshot.docs;
@@ -157,7 +155,7 @@ Future<Query?> getScoutDataByEvent() async {
     Query scoutResult = scoutData
         .where('eventCode', isEqualTo: userObj.eventCode)
         .where('season', isEqualTo: userObj.season)
-        .where('createdBy', isEqualTo: auth.currentUser!.uid);
+        .where('team', isEqualTo: userObj.team);
 
     return scoutResult;
   }

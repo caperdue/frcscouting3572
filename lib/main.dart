@@ -4,7 +4,6 @@ import 'Constants.dart';
 import '../Views/Login.dart';
 import '../Views/Landing.dart';
 import '../Views/TabScreen.dart';
-import 'Network/firstAPI.dart' as firstAPI;
 import 'Views/Settings/EventSettings.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
