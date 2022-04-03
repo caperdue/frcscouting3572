@@ -24,15 +24,16 @@ class _ScoutState extends State<Scout> {
 
   @override
   Widget build(BuildContext context) {
-  
     return Column(children: <Widget>[
       CupertinoSearchTextField(
         controller: searchController,
         onChanged: (search) {
-          
+          setState(() {});
         },
       ),
-      TeamScoutList(),
+      TeamScoutList(
+        searchText: searchController.text,
+      ),
     ]);
   }
 }

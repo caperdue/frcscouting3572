@@ -10,7 +10,9 @@ import '../Network/firstAPI.dart' as firstAPI;
 import '../Network/db.dart' as db;
 
 class TeamScoutList extends StatefulWidget {
-  const TeamScoutList({Key? key}) : super(key: key);
+  String searchText;
+
+  TeamScoutList({required this.searchText});
 
   @override
   _TeamScoutListState createState() => _TeamScoutListState();
@@ -26,7 +28,6 @@ class _TeamScoutListState extends State<TeamScoutList> {
     listenForScoutDataChanges();
   }
 
-  // TODO: THIS doesn't always work properly. Doesn't say I liked it
   // Listen for document changes and trigger a rebuild if necessary.
   void listenForScoutDataChanges() {
     db.getScoutDataByEvent().then((Query? scoutDataQuery) {
@@ -36,6 +37,21 @@ class _TeamScoutListState extends State<TeamScoutList> {
         setState(() {});
       });
     });
+  }
+
+  List<dynamic> queryTeams(List<dynamic> teams) {
+    List<dynamic> filteredTeams = teams.where((team) {
+      String teamNumber = team["teamNumber"].toString();
+      String nameShort = team["nameShort"].toLowerCase();
+      String lowerCaseSearch = widget.searchText.toLowerCase();
+      if (teamNumber.contains(RegExp("^$lowerCaseSearch")) ||
+          nameShort.contains(RegExp("^$lowerCaseSearch"))) {
+        return true;
+      }
+      return false;
+    }).toList();
+
+    return filteredTeams;
   }
 
   Widget build(BuildContext context) {
@@ -50,7 +66,7 @@ class _TeamScoutListState extends State<TeamScoutList> {
                   future: firstAPI.getTeamsAtEvent(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      dynamic teams = snapshot.data;
+                      dynamic teams = queryTeams(snapshot.data as List<dynamic>);
                       return FutureBuilder(
                           future: db.getUserTeamAndSeasonScoutData(),
                           builder: (context, snapshot) {
@@ -105,12 +121,23 @@ class _TeamScoutListState extends State<TeamScoutList> {
                                                   MaterialPageRoute(
                                                       builder: (context) => ViewTeam(
                                                           scoutTeam: scoutTeam,
-                                                          additionalTeamInfo: {"School": registeredTeam["schoolName"],
-                                                          "Rookie Year": registeredTeam["rookieYear"], 
-                                                          "City": registeredTeam["city"],
-                                                          "State": registeredTeam["stateProv"],
-                                                          "Website": registeredTeam["website"]},
-                                                          
+                                                          additionalTeamInfo: {
+                                                            "School":
+                                                                registeredTeam[
+                                                                    "schoolName"],
+                                                            "Rookie Year":
+                                                                registeredTeam[
+                                                                    "rookieYear"],
+                                                            "City":
+                                                                registeredTeam[
+                                                                    "city"],
+                                                            "State":
+                                                                registeredTeam[
+                                                                    "stateProv"],
+                                                            "Website":
+                                                                registeredTeam[
+                                                                    "website"]
+                                                          },
                                                           uid: scoutDataUID)));
                                             },
                                             child: TeamCard(

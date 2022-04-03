@@ -10,11 +10,12 @@ String encodedAuthToken = convert.base64.encode(bytes);
 
 Future getTeamsAtEvent() async {
   var user = await db.getUserInformation();
-  var teams;
+  List<dynamic> teams;
   final response = await http.get(
       Uri.parse(
-          "https://frc-api.firstinspires.org/v3.0/2019/teams?eventCode=${user["eventCode"]}"),
+          "https://frc-api.firstinspires.org/v3.0/${user["season"]}/teams?eventCode=${user["eventCode"]}"),
       headers: {"Authorization": "Basic $encodedAuthToken"});
+
   if (response.statusCode == 200) {
     teams = convert.jsonDecode(response.body)['teams'];
     return teams;
@@ -83,8 +84,8 @@ Future<Map<String, String>> getEventInformation(
     DateTime startDate = DateTime.parse(startDateString).toLocal();
     DateTime endDate = DateTime.parse(endDateString).toLocal();
 
-    startDateString = DateFormat.MMMEd().format(startDate);
-    endDateString = DateFormat.MMMEd().format(endDate);
+    startDateString = DateFormat.yMMMEd().format(startDate);
+    endDateString = DateFormat.yMMMEd().format(endDate);
 
     String seasonName = json.decode(seasonNameResponse.body)["gameName"];
     return {

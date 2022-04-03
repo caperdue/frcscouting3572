@@ -35,8 +35,6 @@ class _EventSettingsState extends State<EventSettings> {
       if (user != null) {
         season = user["season"];
         seasonController.text = season.toString();
-      } else {
-        season = DateTime.now().year;
       }
 
       getDistrictsFromSeason(season).then((response) {
@@ -65,6 +63,8 @@ class _EventSettingsState extends State<EventSettings> {
         actions: [
           TextButton(
               onPressed: () {
+
+                // Remove Save Implementation
                 if (this.selectedEvent != null && this.season != null) {
                   saveEventAndSeason(this.selectedEvent["code"], this.season!)
                       .then(
