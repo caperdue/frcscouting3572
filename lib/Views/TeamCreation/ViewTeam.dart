@@ -10,7 +10,7 @@ import '../../Network/db.dart' as db;
 class ViewTeam extends StatefulWidget {
   ScoutTeam scoutTeam;
   final Map<String, dynamic> additionalTeamInfo;
-  final String? uid;
+  String? uid;
   ViewTeam(
       {required this.scoutTeam,
       required this.additionalTeamInfo,
@@ -151,23 +151,32 @@ class _ViewTeamState extends State<ViewTeam> {
                       season = user["season"];
                       eventCode = user["eventCode"];
                       final newTeam = ScoutTeam(
-                        number: widget.scoutTeam.number,
-                        likeStatus: likedKey,
-                        comments: commentsController.text,
-                        images: null,
-                        stats: null,
-                        createdBy: auth.currentUser!.uid,
-                        season: season,
-                        eventCode: eventCode,
-                      );
-                      // Check if scoutData already exists with this event
-                      db.setTeam(widget.uid, newTeam.toJson()).then((value) {
-                        showSnackBar(context, 'Saved successfully!', kGreen);
-                        setState(() {
-                          this.editMode = !this.editMode;
+                          number: widget.scoutTeam.number,
+                          likeStatus: likedKey,
+                          comments: commentsController.text,
+                          images: null,
+                          stats: null,
+                          createdBy: auth.currentUser!.uid,
+                          season: season,
+                          eventCode: eventCode,
+                          assignedTeam: user["team"]);
+
+                      if (widget.uid != null) {
+                        db
+                            .updateTeam(widget.uid, newTeam.toJson())
+                            .then((result) {
+                          showSnackBar(context, 'Saved successfully!', kGreen);
                           teamBeforeChanges = newTeam;
                         });
-                      });
+                      } else {
+                        db
+                            .addTeam(newTeam.toJson())
+                            .then((DocumentReference teamDoc) {
+                          showSnackBar(context, 'Saved successfully!', kGreen);
+                          teamBeforeChanges = newTeam;
+                          widget.uid = teamDoc.id;
+                        });
+                      }
                     });
                   } catch (e) {
                     showSnackBar(
@@ -175,11 +184,10 @@ class _ViewTeamState extends State<ViewTeam> {
                         'There was an error while saving. Please try again: $e',
                         kRed);
                   }
-                } else {
-                  setState(() {
-                    this.editMode = !this.editMode;
-                  });
                 }
+                setState(() {
+                  this.editMode = !this.editMode;
+                });
               },
               child: Text(this.editMode ? 'Save' : 'Edit'))
         ],
@@ -241,14 +249,11 @@ class _ViewTeamState extends State<ViewTeam> {
                         child: ListTile(
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                SizedBox(height: 5),
-                                Text("SCHOOL:"),
-                                Text("ROOKIE YEAR:"),
-                                Text("CITY:"),
-                                Text("STATE:"),
-                                Text("WEBSITE:"),
+                              children:<Widget>[
+                                for ( var entry in widget.additionalTeamInfo.entries) Text("${entry.key}: ${entry.value}")
                               ],
+                                
+                            
                             ),
                             title: Text("Additional Information",
                                 style: TextStyle(

@@ -34,17 +34,19 @@ Future<DocumentSnapshot<Map<String, dynamic>>?> getScoutDataByByUID(
   return await db.collection("ScoutData").doc(uid).get();
 }
 
-Future setTeam(String? uid, Map<String, dynamic> data) async {
+Future<void> updateTeam(String? uid, Map<String, dynamic> data) async {
   if (uid != null) {
     return await db
         .collection('ScoutData')
         .doc(uid)
         .set(data, SetOptions(merge: true));
   }
+}
+
+Future<DocumentReference> addTeam( Map<String, dynamic> data) async {
   return await db
       .collection('ScoutData')
-      .doc()
-      .set(data, SetOptions(merge: true));
+      .add(data);
 }
 
 Future<int> getMostLiked() async {
@@ -60,7 +62,6 @@ Future<int> getMostLiked() async {
           result.reference.collection("ScoutData").get().then((value) {
             // Get all teams with no. 909
             value.docs.forEach((element) {
-              print(element.data());
               switch (element.data()['likeStatus']) {
                 case 0:
                   break;
@@ -71,7 +72,6 @@ Future<int> getMostLiked() async {
                   break;
               }
             });
-            print(likes);
             return likes;
           });
         });
@@ -81,7 +81,7 @@ Future<int> getMostLiked() async {
   return likes;
 }
 
-// Settings page 
+// Settings page
 //TODO: Remove this logic???
 Future<List<dynamic>> getSeasons() async {
   var seasons = await db.collection("Seasons").get();
@@ -121,13 +121,15 @@ Future<Map<String, int>> getTotalLikesDislikes(int teamNumber) async {
       await user.get() as DocumentSnapshot<Map<String, dynamic>>;
   final userDoc = userDocSnapshot.data();
   final userObj = User.fromJson(userDoc!);
+
   var teamDocSnapshot = await scoutData
       .where("number", isEqualTo: teamNumber)
       .where("eventCode", isEqualTo: userObj.eventCode)
       .where("season", isEqualTo: userObj.season)
-      .where("team", isEqualTo: userObj.team)
+      .where("assignedTeam", isEqualTo: userObj.team)
       .get();
 
+  //teamDocSnapshot = teamDocSnapshot.docs.where("")
   var teamDocs = teamDocSnapshot.docs;
   for (var teamDoc in teamDocs) {
     switch (teamDoc.get("likeStatus")) {
@@ -155,7 +157,7 @@ Future<Query?> getScoutDataByEvent() async {
     Query scoutResult = scoutData
         .where('eventCode', isEqualTo: userObj.eventCode)
         .where('season', isEqualTo: userObj.season)
-        .where('team', isEqualTo: userObj.team);
+        .where('assignedTeam', isEqualTo: userObj.team);
 
     return scoutResult;
   }

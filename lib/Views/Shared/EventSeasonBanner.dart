@@ -19,7 +19,6 @@ class _EventSeasonBannerState extends State<EventSeasonBanner> {
     return StreamBuilder(
         stream: db.user.snapshots(),
         builder: (context, snapshot) {
-          print(snapshot.data);
           if (snapshot.hasData) {
             DocumentSnapshot userSnapshot = snapshot.data as DocumentSnapshot;
             User user =
@@ -32,7 +31,6 @@ class _EventSeasonBannerState extends State<EventSeasonBanner> {
                     if (snapshot.hasData) {
                       Map<String, String> eventInformation =
                           snapshot.data as Map<String, String>;
-                      print(eventInformation);
                       String eventName = eventInformation["eventName"]!;
                       String seasonName = eventInformation["seasonName"]!;
                       String startDate = eventInformation["startDate"]!;

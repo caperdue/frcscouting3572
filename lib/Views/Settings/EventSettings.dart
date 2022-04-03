@@ -66,14 +66,15 @@ class _EventSettingsState extends State<EventSettings> {
           TextButton(
               onPressed: () {
                 if (this.selectedEvent != null && this.season != null) {
-                  print("RUN");
                   saveEventAndSeason(this.selectedEvent["code"], this.season!)
                       .then(
                     (value) {
                       showSnackBar(context, "Save successful", kGreen);
                     },
                     //Add error handlign?
-                  );
+                  ).onError((error, stackTrace) {
+                    showSnackBar(context, "Save was unsuccessful: $error", kRed);
+                  });
                 }
               },
               child: Text("Save"))
@@ -94,14 +95,16 @@ class _EventSettingsState extends State<EventSettings> {
                     child: Form(
                       key: seasonKey,
                       child: TextFormField(
-                      onChanged: (text) {
+                        onChanged: (text) {
                           if (seasonKey.currentState?.validate() == true) {
                             season = int.tryParse(seasonController.text);
                           }
                         },
                         validator: (text) {
                           var season = int.tryParse(seasonController.text);
-                          if (season != null && season > 2005 && season <= DateTime.now().year) {
+                          if (season != null &&
+                              season > 2005 &&
+                              season <= DateTime.now().year) {
                             setState(() {});
                             return null;
                           }

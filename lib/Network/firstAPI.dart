@@ -35,7 +35,6 @@ Future getTeamInfo(int team) async {
 
 Future<List<dynamic>>? getEventsFromSeason(
     int? season, String? district) async {
-  print(district);
   if (season != null) {
     final url =
         "https://frc-api.firstinspires.org/v3.0/$season/events${district != null ? ("?districtCode=${json.decode(district)["code"]}") : ""}";

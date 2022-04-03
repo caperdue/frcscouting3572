@@ -5,7 +5,6 @@ import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
 import 'package:frcscouting3572/Views/Shared/TeamCard.dart';
 import 'package:frcscouting3572/Views/TeamCreation/ViewTeam.dart';
-//import '../Views/TeamCreation/ViewTeam.dart';
 
 import '../Network/firstAPI.dart' as firstAPI;
 import '../Network/db.dart' as db;
@@ -26,6 +25,7 @@ class _TeamScoutListState extends State<TeamScoutList> {
     super.initState();
     listenForScoutDataChanges();
   }
+
   // TODO: THIS doesn't always work properly. Doesn't say I liked it
   // Listen for document changes and trigger a rebuild if necessary.
   void listenForScoutDataChanges() {
@@ -67,7 +67,8 @@ class _TeamScoutListState extends State<TeamScoutList> {
                                       stats: null,
                                       createdBy: auth.currentUser!.uid,
                                       eventCode: user.eventCode!,
-                                      season: user.season);
+                                      season: user.season,
+                                      assignedTeam: user.team!);
                                   String? scoutDataUID;
                                   if (snapshot.hasData) {
                                     Map<int, dynamic> dbTeams = snapshot.data
@@ -104,15 +105,23 @@ class _TeamScoutListState extends State<TeamScoutList> {
                                                   MaterialPageRoute(
                                                       builder: (context) => ViewTeam(
                                                           scoutTeam: scoutTeam,
-                                                          additionalTeamInfo: {},
+                                                          additionalTeamInfo: {"School": registeredTeam["schoolName"],
+                                                          "Rookie Year": registeredTeam["rookieYear"], 
+                                                          "City": registeredTeam["city"],
+                                                          "State": registeredTeam["stateProv"],
+                                                          "Website": registeredTeam["website"]},
+                                                          
                                                           uid: scoutDataUID)));
                                             },
                                             child: TeamCard(
                                               scoutTeam: scoutTeam,
                                               nickname:
                                                   registeredTeam['nameShort'],
-                                              numLikes: likes != null ? likes : 0,
-                                              numDislikes: dislikes != null ? dislikes : 0,
+                                              numLikes:
+                                                  likes != null ? likes : 0,
+                                              numDislikes: dislikes != null
+                                                  ? dislikes
+                                                  : 0,
                                             ));
                                       });
                                 });
