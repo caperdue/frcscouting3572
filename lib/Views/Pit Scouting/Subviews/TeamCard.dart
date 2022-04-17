@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
-import '../../Constants.dart';
+import '../../../Constants.dart';
 
 class TeamCard extends StatefulWidget {
   final ScoutTeam scoutTeam;

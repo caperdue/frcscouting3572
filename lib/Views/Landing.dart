@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Network/db.dart';
+import 'package:frcscouting3572/Network/db.dart' as db;
 import '../Network/Auth.dart';
 
 class Landing extends StatefulWidget {
@@ -14,7 +14,7 @@ class _LandingState extends State<Landing> {
     try {
       bool properlyAuthed = false;
       if (auth.currentUser != null) {
-        await user.get().then((value) { //Check for user and assigned team
+        await db.getUserInformation().then((value) { //Check for user and assigned team
           if (value.exists) {
             if (value.get('team') != null) {
               properlyAuthed = true;

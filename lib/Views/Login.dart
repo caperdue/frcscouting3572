@@ -34,7 +34,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 user.get().then((value) {
                   if (value.exists) {
                     if (value.get('team') != null) {
-                      Navigator.pushReplacementNamed(context, '/home');
+                      Navigator.pushReplacementNamed(
+                          context, '/home');
                     } else {
                       setState(() {
                         showLoginForm(context);

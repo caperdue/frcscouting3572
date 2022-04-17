@@ -2,18 +2,17 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:convert' as convert;
-import '../Network/db.dart' as db;
+import '../Models/User.dart';
 
 String authToken = "cpchicken:c268bdc2-540d-4857-96bf-a7ed2d877fd5";
 final bytes = convert.utf8.encode(authToken);
 String encodedAuthToken = convert.base64.encode(bytes);
 
-Future getTeamsAtEvent() async {
-  var user = await db.getUserInformation();
+Future getTeamsAtEvent(User user) async {
   List<dynamic> teams;
   final response = await http.get(
       Uri.parse(
-          "https://frc-api.firstinspires.org/v3.0/${user["season"]}/teams?eventCode=${user["eventCode"]}"),
+          "https://frc-api.firstinspires.org/v3.0/${user.season}/teams?eventCode=${user.eventCode}"),
       headers: {"Authorization": "Basic $encodedAuthToken"});
 
   if (response.statusCode == 200) {

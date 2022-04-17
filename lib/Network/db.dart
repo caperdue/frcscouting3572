@@ -43,10 +43,8 @@ Future<void> updateTeam(String? uid, Map<String, dynamic> data) async {
   }
 }
 
-Future<DocumentReference> addTeam( Map<String, dynamic> data) async {
-  return await db
-      .collection('ScoutData')
-      .add(data);
+Future<DocumentReference> addTeam(Map<String, dynamic> data) async {
+  return await db.collection('ScoutData').add(data);
 }
 
 Future<int> getMostLiked() async {
@@ -82,35 +80,29 @@ Future<int> getMostLiked() async {
 }
 
 // Settings page
-//TODO: Remove this logic???
-Future<List<dynamic>> getSeasons() async {
-  var seasons = await db.collection("Seasons").get();
-  List seasonData = seasons.docs.map((seasonItem) {
-    return seasonItem.data()["year"];
-  }).toList();
-  seasonData = seasonData.toList();
-  seasonData = seasonData..sort((a, b) => b.compareTo(a));
-  return seasonData;
-}
 
 //Event Settings Page
-Future saveEventAndSeason(String eventCode, int season) async {
+Future saveSeasonInfo(String eventCode, int season, String district) async {
+  var futures = <Future>[];
   final userData = await user.get();
-  if (userData.exists) {
-    var futures = <Future>[];
-    Future setSeason;
-    if (userData.get("season") != season) {
-      setSeason =
-          userData.reference.set({"season": season}, SetOptions(merge: true));
+  try {
+    if (userData.exists) {
+      Future setSeason;
+
+      setSeason = userData.reference.update({"season": season});
       futures.add(setSeason);
-    }
-    Future setEventCode;
-    if (userData.get("eventCode") != eventCode) {
-      setEventCode = userData.reference
-          .set({"eventCode": eventCode}, SetOptions(merge: true));
+
+      Future setEventCode;
+      setEventCode = userData.reference.update({"eventCode": eventCode});
       futures.add(setEventCode);
+
+      setEventCode = userData.reference.update({"district": district});
+      futures.add(setEventCode);
+
+      return await Future.wait(futures);
     }
-    return await Future.wait(futures);
+  } catch (e) {
+    throw new Error();
   }
 }
 

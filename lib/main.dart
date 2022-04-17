@@ -1,13 +1,49 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Constants.dart';
 import '../Views/Login.dart';
 import '../Views/Landing.dart';
 import '../Views/TabScreen.dart';
-import 'Views/Settings/EventSettings.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  FirebaseOptions? firebaseOptions;
+  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    //Configure for web
+    firebaseOptions = FirebaseOptions(
+      apiKey: "AIzaSyCpl3AlIFas-GOtzvKHHemlzqD1w7ov1jE",
+      authDomain: "frcscouting3572.firebaseapp.com",
+      projectId: "frcscouting3572",
+      storageBucket: "frcscouting3572.appspot.com",
+      messagingSenderId: "523751731363",
+      appId: "1:523751731363:web:4721ccc41fa124dde9cf16",
+      measurementId: "G-VGTNFJ5HGH",
+    );
+  } else if (Platform.isIOS) {
+    firebaseOptions = FirebaseOptions(
+      apiKey: "AIzaSyCpl3AlIFas-GOtzvKHHemlzqD1w7ov1jE",
+      authDomain: "frcscouting3572.firebaseapp.com",
+      projectId: "frcscouting3572",
+      storageBucket: "frcscouting3572.appspot.com",
+      messagingSenderId: "523751731363",
+      appId: "1:523751731363:ios:59da976d5bab3fa1e9cf16",
+      measurementId: "G-VGTNFJ5HGH",
+    );
+  } else {
+    firebaseOptions = FirebaseOptions(
+      apiKey: "AIzaSyCpl3AlIFas-GOtzvKHHemlzqD1w7ov1jE",
+      authDomain: "frcscouting3572.firebaseapp.com",
+      projectId: "frcscouting3572",
+      storageBucket: "frcscouting3572.appspot.com",
+      messagingSenderId: "523751731363",
+      appId: "1:523751731363:android:5b94af3040bf5d6de9cf16",
+      measurementId: "G-VGTNFJ5HGH",
+    );
+  }
+  await Firebase.initializeApp(name: "FRC_Scouting", options: firebaseOptions);
+
   runApp(App());
 }
 
@@ -33,33 +69,31 @@ class _AppState extends State<App> {
         }
       },
       child: MaterialApp(
-          theme: ThemeData.light().copyWith(
-            textButtonTheme: TextButtonThemeData(
+        theme: ThemeData.light().copyWith(
+          textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                primary: Colors.white,
-              )
-            ),
-            snackBarTheme: SnackBarThemeData(
-              backgroundColor: kDarkBlue,
-            ),
-            floatingActionButtonTheme: FloatingActionButtonThemeData(
-              backgroundColor: kBlue,
-            ),
-            textTheme: Theme.of(context).textTheme.apply(
-              bodyColor: kDarkBlue,
-              displayColor: kNavy,
-            ),
-              appBarTheme: AppBarTheme(
-              color: kNavy,
-            ),
+            primary: Colors.white,
+          )),
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: kDarkBlue,
           ),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: kBlue,
+          ),
+          textTheme: Theme.of(context).textTheme.apply(
+                bodyColor: kDarkBlue,
+                displayColor: kNavy,
+              ),
+          appBarTheme: AppBarTheme(
+            color: kNavy,
+          ),
+        ),
         initialRoute: '/',
         routes: {
-           '/': (context) => Landing(),
-            '/view': (context) => Container(),
-            '/login': (context) => Login(),
-            '/home': (context) => TabScreen(),
-            '/eventSettings': (context) => EventSettings(),
+          '/': (context) => Landing(),
+          '/view': (context) => Container(),
+          '/login': (context) => Login(),
+          '/home': (context) => TabScreen(),
         },
       ),
     );

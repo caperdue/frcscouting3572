@@ -3,6 +3,7 @@ class User {
   int? scoutData;
   int season = DateTime.now().year;
   String? eventCode;
+  String? district;
 
   User({this.team});
 
@@ -12,6 +13,7 @@ class User {
     scoutData = json["scoutData"];
     season = json["season"];
     eventCode = json["eventCode"];
+    district = json["district"];
   }
 
   //Takes object to be put into JSON.
@@ -21,6 +23,7 @@ class User {
     data['scoutData'] = this.scoutData;
     data["season"] = this.season;
     data["eventCode"] = this.eventCode;
+    data["district"] = this.district;
     return data;
   }
 }

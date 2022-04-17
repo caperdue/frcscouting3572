@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Views/Settings/Subviews/EventSettings.dart';
+import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
 import '../../Network/Auth.dart';
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+  final User user;
+  Settings({required this.user});
 
   @override
   _SettingsState createState() => _SettingsState();
@@ -19,19 +22,20 @@ class _SettingsState extends State<Settings> {
         children: <Widget>[
           ElevatedButton(
             onPressed: () {
-              Navigator.pushNamed(context, "/eventSettings");
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return EventSettings(user: widget.user);
+              }));
             },
             child: Text('Change Season/Event'),
           ),
           ElevatedButton(
             onPressed: () {
-              auth.signOut().then((value) {
-                GoogleSignIn().signOut().then((success) {
-                  Navigator.pushReplacementNamed(context, '/');
-                }).catchError((error) {
-                  print('There was an error signing out!');
-                  Navigator.pushReplacementNamed(context, '/');
-                });
+              auth.signOut().then((success) {
+                Navigator.pushReplacementNamed(context, '/');
+              }).catchError((error) {
+                DialogMessage(
+                    title: "Error",
+                    content: "There was an error signing out: $error");
               });
             },
             child: Text('Sign out'),

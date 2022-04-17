@@ -1,8 +1,10 @@
-import 'package:frcscouting3572/Views/TeamScoutList.dart';
+import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Views/Pit%20Scouting/Subviews/TeamScoutList.dart';
 import 'package:flutter/cupertino.dart';
 
 class Scout extends StatefulWidget {
-  const Scout({Key? key}) : super(key: key);
+  final User user;
+  Scout({required this.user});
 
   @override
   _ScoutState createState() => _ScoutState();
@@ -33,6 +35,7 @@ class _ScoutState extends State<Scout> {
       ),
       TeamScoutList(
         searchText: searchController.text,
+        user: widget.user,
       ),
     ]);
   }

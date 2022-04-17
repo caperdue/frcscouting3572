@@ -2,18 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>NSPhotoLibraryUsageDescription</key>
-  <string>App will use to help grab pictures for robots.</string>
-  <key>NSCameraUsageDescription</key>
-  <string>App will use to help take pictures for robots.</string>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>App will use to help take video with audio for robots.</string>
-  
-  <key>NSAppTransportSecurity</key>
-  <dict>
-    <key>NSAllowsArbitraryLoads</key>
-    <true/>
-  </dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -36,8 +26,14 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
+			<array/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.523751731363-f41olegnit6lu3jk84lfuq2ku983ad9u</string>
+				<string>com.googleusercontent.apps.221809095733-m0sc4qhastuleikr7nbabfo454tl5imo</string>
 			</array>
 		</dict>
 	</array>
@@ -50,6 +46,12 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>App will use to help take pictures for robots.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>App will use to help take video with audio for robots.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>App will use to help grab pictures for robots.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

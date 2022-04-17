@@ -2,13 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
+import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
 import 'package:intl/intl.dart';
-import '../../Network/firstAPI.dart';
-import '../../Network/db.dart';
+import '../../../Network/firstAPI.dart';
+import '../../../Network/db.dart';
 
 class EventSettings extends StatefulWidget {
-  const EventSettings({Key? key}) : super(key: key);
+  final User user;
+  EventSettings({required this.user});
 
   @override
   _EventSettingsState createState() => _EventSettingsState();
@@ -17,37 +19,35 @@ class EventSettings extends StatefulWidget {
 class _EventSettingsState extends State<EventSettings> {
   int? season;
   String? district;
-  dynamic selectedEvent;
-  dynamic event;
+  String? selectedEvent;
   final GlobalKey<FormState> seasonKey = GlobalKey();
 
   TextEditingController seasonController = TextEditingController();
   List<dynamic> districts = [];
+
   @override
   void initState() {
     super.initState();
-    initSeason();
+    this.season = widget.user.season;
+    this.district = widget.user.district;
+    this.selectedEvent = widget.user.eventCode;
+
+    seasonController.text = this.season.toString();
+
+    preloadDistricts();
   }
 
-  initSeason() async {
-    dynamic user = await getUserInformation();
-    setState(() {
-      if (user != null) {
-        season = user["season"];
-        seasonController.text = season.toString();
-      }
-
-      getDistrictsFromSeason(season).then((response) {
-        setState(() {
-          this.districts = response;
-        });
+  preloadDistricts() async {
+    getDistrictsFromSeason(season).then((response) {
+      setState(() {
+        this.districts = response;
       });
     });
   }
 
   checkSelectedEvent(event) {
     if (this.selectedEvent != null) {
-      if (this.selectedEvent["code"] == event["code"]) {
+      if (this.selectedEvent == event["code"]) {
         return Icon(Icons.check_box);
       }
     }
@@ -63,17 +63,22 @@ class _EventSettingsState extends State<EventSettings> {
         actions: [
           TextButton(
               onPressed: () {
-
-                // Remove Save Implementation
-                if (this.selectedEvent != null && this.season != null) {
-                  saveEventAndSeason(this.selectedEvent["code"], this.season!)
+                // Remove Save Implementation'
+                if (this.selectedEvent != null &&
+                    this.season != null &&
+                    this.district != null) {
+                   Map<String, dynamic> districtJSON =
+                                json.decode(this.district!);
+                  saveSeasonInfo(
+                          this.selectedEvent!, this.season!, districtJSON["code"]!)
                       .then(
                     (value) {
                       showSnackBar(context, "Save successful", kGreen);
                     },
                     //Add error handlign?
                   ).onError((error, stackTrace) {
-                    showSnackBar(context, "Save was unsuccessful: $error", kRed);
+                    showSnackBar(
+                        context, "Save was unsuccessful: $error", kRed);
                   });
                 }
               },
@@ -133,7 +138,6 @@ class _EventSettingsState extends State<EventSettings> {
                           hint: Text("District"),
                           onChanged: (val) {
                             setState(() {
-                              this.selectedEvent = null;
                               this.district = val;
                             });
                           },
@@ -142,7 +146,7 @@ class _EventSettingsState extends State<EventSettings> {
                                 {"name": value["name"], "code": value["code"]});
                             Map<String, dynamic> data = json.decode(obj);
                             return DropdownMenuItem(
-                              value: obj,
+                              value: value["code"],
                               child: Text(
                                 data["name"],
                               ),
@@ -180,7 +184,7 @@ class _EventSettingsState extends State<EventSettings> {
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    this.selectedEvent = data[index];
+                                    this.selectedEvent = data[index]["code"];
                                   });
                                 },
                                 child: ListTile(

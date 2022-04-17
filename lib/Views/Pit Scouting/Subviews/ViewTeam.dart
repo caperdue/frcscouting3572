@@ -2,19 +2,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
+import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
 import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
 
-import '../../Network/db.dart' as db;
+import '../../../Network/db.dart' as db;
 
+// ignore: must_be_immutable
 class ViewTeam extends StatefulWidget {
-  ScoutTeam scoutTeam;
-  final Map<String, dynamic> additionalTeamInfo;
+  final User user;
+  final ScoutTeam scoutTeam;
   String? uid;
+  final String? school;
+  final int? rookieYear;
+  final String? city;
+  final String? state;
+  final String? nickname;
+  final Map<String, dynamic>? stats;
+
   ViewTeam(
       {required this.scoutTeam,
-      required this.additionalTeamInfo,
-      required this.uid});
+      required this.uid,
+      required this.school,
+      required this.rookieYear,
+      required this.city,
+      required this.nickname,
+      required this.state,
+      required this.stats,
+      required this.user});
 
   @override
   _ViewTeamState createState() => _ViewTeamState();
@@ -59,7 +74,7 @@ class _ViewTeamState extends State<ViewTeam> {
   Widget build(BuildContext context) {
     final List<Widget> buttons = [
       Container(
-          width: (MediaQuery.of(context).size.width - 48) / 3,
+          width: (MediaQuery.of(context).size.width) / 8,
           child: new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -68,17 +83,10 @@ class _ViewTeamState extends State<ViewTeam> {
                 size: 16.0,
                 color: Colors.red,
               ),
-              new SizedBox(
-                width: 4.0,
-              ),
-              new Text(
-                "BAD",
-                style: TextStyle(color: Colors.red),
-              )
             ],
           )),
       Container(
-          width: (MediaQuery.of(context).size.width - 48) / 3,
+          width: (MediaQuery.of(context).size.width) / 8,
           child: new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -87,14 +95,10 @@ class _ViewTeamState extends State<ViewTeam> {
                 size: 16.0,
                 color: Colors.yellow[800],
               ),
-              new SizedBox(
-                width: 4.0,
-              ),
-              new Text("", style: TextStyle(color: Colors.yellow[800]))
             ],
           )),
       Container(
-          width: (MediaQuery.of(context).size.width - 48) / 3,
+          width: (MediaQuery.of(context).size.width) / 8,
           child: new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -103,10 +107,6 @@ class _ViewTeamState extends State<ViewTeam> {
                 size: 16.0,
                 color: Colors.green,
               ),
-              new SizedBox(
-                width: 4.0,
-              ),
-              new Text("LIKE", style: TextStyle(color: Colors.green))
             ],
           )),
     ];
@@ -135,9 +135,7 @@ class _ViewTeamState extends State<ViewTeam> {
                 })
             : BackButton(),
         title: Text(
-          this.editMode
-              ? 'Edit Team \n${widget.scoutTeam.number}'
-              : 'View Team \n${widget.scoutTeam.number}',
+          "Team ${widget.scoutTeam.number}",
           textAlign: TextAlign.center,
         ),
         actions: <Widget>[
@@ -147,37 +145,35 @@ class _ViewTeamState extends State<ViewTeam> {
                   try {
                     int season;
                     String eventCode;
-                    db.user.get().then((user) {
-                      season = user["season"];
-                      eventCode = user["eventCode"];
-                      final newTeam = ScoutTeam(
-                          number: widget.scoutTeam.number,
-                          likeStatus: likedKey,
-                          comments: commentsController.text,
-                          images: null,
-                          stats: null,
-                          createdBy: auth.currentUser!.uid,
-                          season: season,
-                          eventCode: eventCode,
-                          assignedTeam: user["team"]);
+                    season = widget.user.season;
+                    eventCode = widget.user.eventCode!;
+                    final newTeam = ScoutTeam(
+                        number: widget.scoutTeam.number,
+                        likeStatus: likedKey,
+                        comments: commentsController.text,
+                        images: null,
+                        stats: null,
+                        createdBy: auth.currentUser!.uid,
+                        season: season,
+                        eventCode: eventCode,
+                        assignedTeam: widget.user.team!);
 
-                      if (widget.uid != null) {
-                        db
-                            .updateTeam(widget.uid, newTeam.toJson())
-                            .then((result) {
-                          showSnackBar(context, 'Saved successfully!', kGreen);
-                          teamBeforeChanges = newTeam;
-                        });
-                      } else {
-                        db
-                            .addTeam(newTeam.toJson())
-                            .then((DocumentReference teamDoc) {
-                          showSnackBar(context, 'Saved successfully!', kGreen);
-                          teamBeforeChanges = newTeam;
-                          widget.uid = teamDoc.id;
-                        });
-                      }
-                    });
+                    if (widget.uid != null) {
+                      db
+                          .updateTeam(widget.uid, newTeam.toJson())
+                          .then((result) {
+                        showSnackBar(context, 'Saved successfully!', kGreen);
+                        teamBeforeChanges = newTeam;
+                      });
+                    } else {
+                      db
+                          .addTeam(newTeam.toJson())
+                          .then((DocumentReference teamDoc) {
+                        showSnackBar(context, 'Saved successfully!', kGreen);
+                        teamBeforeChanges = newTeam;
+                        widget.uid = teamDoc.id;
+                      });
+                    }
                   } catch (e) {
                     showSnackBar(
                         context,
@@ -192,42 +188,45 @@ class _ViewTeamState extends State<ViewTeam> {
               child: Text(this.editMode ? 'Save' : 'Edit'))
         ],
       ),
-      body: Stack(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Team Nickname Here",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: kNavy, fontWeight: FontWeight.bold, fontSize: 20)),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-            child: Form(
-              key: formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        child: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Stack(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                        child: Text(
+                      "${widget.nickname}",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[800],
+                          fontSize: 20),
+                      overflow: TextOverflow.ellipsis,
+                    )),
+                    ToggleButtons(
+                      borderColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      children: buttons,
+                      isSelected: buttonState,
+                      onPressed: (int index) {
+                        if (editMode) {
+                          setState(() {
+                            setLikeStatusToggle(index);
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    SizedBox(height: 12),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ToggleButtons(
-                          borderColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          children: buttons,
-                          isSelected: buttonState,
-                          onPressed: (int index) {
-                            if (editMode) {
-                              setState(() {
-                                setLikeStatusToggle(index);
-                              });
-                            }
-                          },
-                        )),
+                    SizedBox(height: 60),
                     TextFormField(
                       controller: commentsController,
                       keyboardType: TextInputType.multiline,
@@ -249,11 +248,12 @@ class _ViewTeamState extends State<ViewTeam> {
                         child: ListTile(
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children:<Widget>[
-                                for ( var entry in widget.additionalTeamInfo.entries) Text("${entry.key}: ${entry.value}")
+                              children: <Widget>[
+                                Text("School: ${widget.school}"),
+                                Text("Rookie Year: ${widget.rookieYear}"),
+                                Text("City: ${widget.city}"),
+                                Text("State: ${widget.state}")
                               ],
-                                
-                            
                             ),
                             title: Text("Additional Information",
                                 style: TextStyle(
@@ -261,10 +261,10 @@ class _ViewTeamState extends State<ViewTeam> {
                                     fontWeight: FontWeight.bold)))),
                   ],
                 ),
-              ),
+              ],
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }

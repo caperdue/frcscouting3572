@@ -8,19 +8,19 @@ import 'db.dart';
 var auth = FirebaseAuth.instance;
 
 signInWithGoogle() async {
-    final GoogleSignInAccount? googleSignInAccount =
-        await GoogleSignIn().signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount!.authentication;
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-    await auth.signInWithCredential(credential);
-    final doc = await user.get();
-    if (!doc.exists) {
-      createUser(null);
-    }
+  GoogleSignIn googleSignIn = GoogleSignIn();
+  final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+  final GoogleSignInAuthentication googleSignInAuthentication =
+      await googleSignInAccount!.authentication;
+  final AuthCredential credential = GoogleAuthProvider.credential(
+    accessToken: googleSignInAuthentication.accessToken,
+    idToken: googleSignInAuthentication.idToken,
+  );
+  await auth.signInWithCredential(credential);
+  final doc = await user.get();
+  if (!doc.exists) {
+    createUser(null);
+  }
 }
 
 /*
@@ -34,4 +34,14 @@ void listenAuthChanges() {
       print('User signed in');
     }
   });
+}
+
+Future signOut() async {
+  List<Future> signOutOperations = [];
+  Future authSignOut = auth.signOut();
+  Future googleSignOut = GoogleSignIn().signOut();
+  signOutOperations.add(authSignOut);
+  signOutOperations.add(googleSignOut);
+  return await Future.wait(signOutOperations);
+  
 }
