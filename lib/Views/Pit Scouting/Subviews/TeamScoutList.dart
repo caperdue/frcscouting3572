@@ -57,114 +57,93 @@ class _TeamScoutListState extends State<TeamScoutList> {
 
   Widget build(BuildContext context) {
     return Expanded(
-      child: StreamBuilder(
-          stream: db.user.snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              var userDoc = snapshot.data as DocumentSnapshot;
-              User user = User.fromJson(userDoc.data() as Map<String, dynamic>);
-              return FutureBuilder(
-                  future: firstAPI.getTeamsAtEvent(widget.user),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      dynamic teams =
-                          queryTeams(snapshot.data as List<dynamic>);
-                      return FutureBuilder(
-                          future: db.getUserTeamAndSeasonScoutData(),
-                          builder: (context, snapshot) {
-                            return ListView.builder(
-                                itemCount: teams.length,
-                                itemBuilder: (context, index) {
-                                  final registeredTeam = teams[index];
-                                  int teamNumber = registeredTeam["teamNumber"];
-                                  ScoutTeam scoutTeam = ScoutTeam(
-                                      number: teamNumber,
-                                      likeStatus: 1,
-                                      comments: "",
-                                      images: null,
-                                      stats: null,
-                                      createdBy: auth.currentUser!.uid,
-                                      eventCode: user.eventCode!,
-                                      season: user.season,
-                                      assignedTeam: user.team!);
-                                  String? scoutDataUID;
-                                  if (snapshot.hasData) {
-                                    Map<int, dynamic> dbTeams = snapshot.data
-                                        as Map<int,
-                                            QueryDocumentSnapshot<Object?>>;
-                                    var doc =
-                                        dbTeams[teams[index]["teamNumber"]];
-                                    if (doc != null) {
-                                      QueryDocumentSnapshot<Object?>
-                                          scoutDataSnapshot =
-                                          doc as QueryDocumentSnapshot<Object?>;
-                                      Map<String, dynamic> scoutDataJSON =
-                                          scoutDataSnapshot.data()
-                                              as Map<String, dynamic>;
-                                      ScoutTeam existingScoutData =
-                                          ScoutTeam.fromJson(scoutDataJSON);
-                                      scoutTeam = existingScoutData;
-                                      scoutDataUID = scoutDataSnapshot.id;
-                                    }
-                                  }
-                                  return FutureBuilder(
-                                      future:
-                                          db.getTotalLikesDislikes(teamNumber),
-                                      builder: (context, snapshot) {
-                                        Map<String, int>? likesDislikes =
-                                            snapshot.data as Map<String, int>?;
-                                        int? likes = likesDislikes?["likes"];
-                                        int? dislikes =
-                                            likesDislikes?["dislikes"];
-                                        return GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) => ViewTeam(
-                                                          user: widget.user,
-                                                          scoutTeam: scoutTeam,
-                                                          school:
-                                                              registeredTeam[
-                                                                  "schoolName"],
-                                                          rookieYear:
-                                                              registeredTeam[
-                                                                  "rookieYear"],
-                                                          city: registeredTeam[
-                                                              "city"],
-                                                          state: registeredTeam[
-                                                              "stateProv"],
-                                                          nickname:
-                                                              registeredTeam[
-                                                                  "nameShort"],
-                                                          stats: {},
-                                                          uid: scoutDataUID)));
-                                            },
-                                            child: TeamCard(
-                                              scoutTeam: scoutTeam,
-                                              nickname:
-                                                  registeredTeam['nameShort'],
-                                              numLikes:
-                                                  likes != null ? likes : 0,
-                                              numDislikes: dislikes != null
-                                                  ? dislikes
-                                                  : 0,
-                                            ));
-                                      });
+        child: FutureBuilder(
+            future: firstAPI.getTeamsAtEvent(widget.user),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                dynamic teams = queryTeams(snapshot.data as List<dynamic>);
+                return FutureBuilder(
+                    future: db.getUserTeamAndSeasonScoutData(),
+                    builder: (context, snapshot) {
+                      return ListView.builder(
+                          itemCount: teams.length,
+                          itemBuilder: (context, index) {
+                            final registeredTeam = teams[index];
+                            int teamNumber = registeredTeam["teamNumber"];
+                            ScoutTeam scoutTeam = ScoutTeam(
+                                number: teamNumber,
+                                likeStatus: 1,
+                                comments: "",
+                                images: null,
+                                stats: null,
+                                createdBy: auth.currentUser!.uid,
+                                eventCode: widget.user.eventCode!,
+                                season: widget.user.season,
+                                assignedTeam: widget.user.team!);
+                            String? scoutDataUID;
+                            if (snapshot.hasData) {
+                              Map<int, dynamic> dbTeams = snapshot.data
+                                  as Map<int, QueryDocumentSnapshot<Object?>>;
+                              var doc = dbTeams[teams[index]["teamNumber"]];
+                              if (doc != null) {
+                                QueryDocumentSnapshot<Object?>
+                                    scoutDataSnapshot =
+                                    doc as QueryDocumentSnapshot<Object?>;
+                                Map<String, dynamic> scoutDataJSON =
+                                    scoutDataSnapshot.data()
+                                        as Map<String, dynamic>;
+                                ScoutTeam existingScoutData =
+                                    ScoutTeam.fromJson(scoutDataJSON);
+                                scoutTeam = existingScoutData;
+                                scoutDataUID = scoutDataSnapshot.id;
+                              }
+                            }
+                            return FutureBuilder(
+                                future: db.getTotalLikesDislikes(teamNumber),
+                                builder: (context, snapshot) {
+                                  Map<String, int>? likesDislikes =
+                                      snapshot.data as Map<String, int>?;
+                                  int? likes = likesDislikes?["likes"];
+                                  int? dislikes = likesDislikes?["dislikes"];
+                                  return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => ViewTeam(
+                                                    user: widget.user,
+                                                    scoutTeam: scoutTeam,
+                                                    school: registeredTeam[
+                                                        "schoolName"],
+                                                    rookieYear: registeredTeam[
+                                                        "rookieYear"],
+                                                    city:
+                                                        registeredTeam["city"],
+                                                    state: registeredTeam[
+                                                        "stateProv"],
+                                                    nickname: registeredTeam[
+                                                        "nameShort"],
+                                                    stats: {},
+                                                    uid: scoutDataUID)));
+                                      },
+                                      child: TeamCard(
+                                        scoutTeam: scoutTeam,
+                                        nickname: registeredTeam['nameShort'],
+                                        numLikes: likes != null ? likes : 0,
+                                        numDislikes:
+                                            dislikes != null ? dislikes : 0,
+                                      ));
                                 });
                           });
-                    }
+                    });
+              }
 
-                    return Center(
-                      child: Text(
-                        "Go to Settings to select an event, you currently do not have one selected!",
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  });
-            }
-            return Text("Error retrieving user info");
-          }),
-    );
+              return Center(
+                child: Text(
+                  "Go to Settings to select an event, you currently do not have one selected!",
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }));
   }
 }

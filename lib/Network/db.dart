@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Auth.dart';
 import '../Models/User.dart';
+import 'package:http/http.dart' as http;
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -8,15 +9,6 @@ DocumentReference user = db.collection('Users').doc(auth.currentUser?.uid);
 CollectionReference users = db.collection('Users');
 CollectionReference teams = db.collection('Teams');
 CollectionReference scoutData = db.collection('ScoutData');
-//General
-void createUser(int? team) {
-  final newUser = User(team: team);
-  users.doc(auth.currentUser!.uid).set(newUser.toJson());
-}
-
-Future<DocumentSnapshot<Object?>> getUserInformation() async {
-  return await user.get();
-}
 
 bool checkIfTeamExists(String teamString) {
   //Fix me to use await

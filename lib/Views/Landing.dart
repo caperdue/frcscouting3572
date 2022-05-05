@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Network/db.dart' as db;
+import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Views/Login/Login.dart';
+import 'package:frcscouting3572/Views/Login/TeamSignup.dart';
+import 'package:frcscouting3572/Views/TabScreen.dart';
 import '../Network/Auth.dart';
+import 'package:frcscouting3572/Network/APIHelper.dart';
 
 class Landing extends StatefulWidget {
   const Landing({Key? key}) : super(key: key);
@@ -10,36 +14,54 @@ class Landing extends StatefulWidget {
 }
 
 class _LandingState extends State<Landing> {
-  Future<bool> checkAuth() async {
+  User? user;
+  bool properlyAuthed = false;
+  bool teamAssigned = false;
+  Future checkAuth() async {
     try {
-      bool properlyAuthed = false;
+      print(auth.currentUser);
       if (auth.currentUser != null) {
-        await db.getUserInformation().then((value) { //Check for user and assigned team
-          if (value.exists) {
-            if (value.get('team') != null) {
-              properlyAuthed = true;
-            }
-          }
-        });
+        properlyAuthed = true;
+        dynamic response =
+            await apiHelper.get("Users/${auth.currentUser!.uid}");
+        user = User.fromJson(response);
+        teamAssigned = true;
       }
-      await Future.delayed(Duration(seconds: 2));
-      return properlyAuthed;
+    } on NotFoundException catch (e) {
+      print(e.cause); // User was not found, must go through creation process.
+    } catch (e) {
+      print(
+          "An error occurred checking authentication status. Please try again. $e");
     }
-    catch(e) {
-      print("An error has occurred!!");
+  }
+
+  void redirectUser() async {
+    await checkAuth();
+    if (properlyAuthed && teamAssigned) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        return TabScreen(user: user!);
+      }));
+    } else if (!properlyAuthed) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Login(user: user),
+          ));
+    } else if (properlyAuthed && !teamAssigned) {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            return TeamSignup();
+          });
     }
-    return false;
   }
 
   @override
   void initState() {
     super.initState();
-    checkAuth().then((properlyAuthed) {
-      if (properlyAuthed) {
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        Navigator.pushReplacementNamed(context, '/login');
-      }
+    Future.delayed(Duration.zero, () async {
+      redirectUser();
     });
   }
 

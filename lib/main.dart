@@ -3,9 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Constants.dart';
-import '../Views/Login.dart';
 import '../Views/Landing.dart';
-import '../Views/TabScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,8 +90,6 @@ class _AppState extends State<App> {
         routes: {
           '/': (context) => Landing(),
           '/view': (context) => Container(),
-          '/login': (context) => Login(),
-          '/home': (context) => TabScreen(),
         },
       ),
     );
