@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
 import 'package:frcscouting3572/Models/Team.dart';
 import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
 import 'package:frcscouting3572/Views/TabScreen.dart';
-import '../Shared/DialogMessage.dart';
+import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
+import 'package:provider/provider.dart';
 
 class TeamSignup extends StatefulWidget {
   _TeamSignupState createState() => _TeamSignupState();
 }
 
 class _TeamSignupState extends State<TeamSignup> {
-  User? user;
   @override
   void initState() {
     super.initState();
@@ -44,8 +45,16 @@ class _TeamSignupState extends State<TeamSignup> {
         setState(() {});
         return;
       }
+
+      if (int.tryParse(text)! <= 0) {
+        teamValidationMsg = 'Team number must be greater than 0';
+        setState(() {});
+        return;
+      }
     } catch (e) {
-      print(e);
+      teamValidationMsg = 'Error: $e';
+      setState(() {});
+      return;
     }
   }
 
@@ -65,7 +74,7 @@ class _TeamSignupState extends State<TeamSignup> {
     }
   }
 
-  void startSignupProcess(bool creating) async {
+  Future<User> startSignupProcess(bool creating) async {
     if (formKey.currentState!.validate()) {
       if (creating) {
         print("Team doesn't exist yet!");
@@ -78,20 +87,22 @@ class _TeamSignupState extends State<TeamSignup> {
         this.team = newTeam;
       }
       User user = User(team: this.team!.number, name: nameController.text);
+      await apiHelper.post("Users/${auth.currentUser!.uid}/create", user);
 
-      var response =
-          await apiHelper.post("Users/${auth.currentUser!.uid}/create", user);
-      this.user = User.fromJson(response);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: kGreen,
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: kGreen,
           content: Text("Successfully joined team ${this.team!.number}")));
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        return TabScreen(user: user);
+        return TabScreen();
       }));
+      return user;
     }
+    throw new Error();
   }
 
   @override
   Widget build(BuildContext context) {
+    final UserBloc userBloc = Provider.of<UserBloc>(context);
     return AlertDialog(
       title: Text('Team Signup'),
       content: Padding(
@@ -127,10 +138,11 @@ class _TeamSignupState extends State<TeamSignup> {
                             await apiHelper.get("Teams/${teamController.text}");
                         this.team = Team.fromJson(teamJson);
                         validateTeamCode(codeController.text);
-                        startSignupProcess(false);
+                        userBloc.user = await startSignupProcess(false);
                       } on NotFoundException catch (e) {
                         // Team was not found, go through the process of creating a team
-                        startSignupProcess(true);
+                        userBloc.user = await startSignupProcess(true);
+                        print("Team wasn't found: $e");
                       } catch (e) {
                         showDialogMessage(context, "Error",
                             "There was an error in the sign in process. Please try again. $e");

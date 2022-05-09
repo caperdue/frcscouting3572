@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
+import 'package:provider/provider.dart';
 import 'Constants.dart';
 import '../Views/Landing.dart';
 
@@ -66,31 +68,34 @@ class _AppState extends State<App> {
           currentFocus.unfocus();
         }
       },
-      child: MaterialApp(
-        theme: ThemeData.light().copyWith(
-          textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-            primary: Colors.white,
-          )),
-          snackBarTheme: SnackBarThemeData(
-            backgroundColor: kDarkBlue,
+      child: MultiProvider(
+        providers: [ChangeNotifierProvider(create: (BuildContext context) => UserBloc())],
+        child: MaterialApp(
+          theme: ThemeData.light().copyWith(
+            textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+              primary: Colors.white,
+            )),
+            snackBarTheme: SnackBarThemeData(
+              backgroundColor: kDarkBlue,
+            ),
+            floatingActionButtonTheme: FloatingActionButtonThemeData(
+              backgroundColor: kBlue,
+            ),
+            textTheme: Theme.of(context).textTheme.apply(
+                  bodyColor: kDarkBlue,
+                  displayColor: kNavy,
+                ),
+            appBarTheme: AppBarTheme(
+              color: kNavy,
+            ),
           ),
-          floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: kBlue,
-          ),
-          textTheme: Theme.of(context).textTheme.apply(
-                bodyColor: kDarkBlue,
-                displayColor: kNavy,
-              ),
-          appBarTheme: AppBarTheme(
-            color: kNavy,
-          ),
+          initialRoute: '/',
+          routes: {
+            '/': (context) => Landing(),
+            '/view': (context) => Container(),
+          },
         ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => Landing(),
-          '/view': (context) => Container(),
-        },
       ),
     );
   }

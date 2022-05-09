@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Auth.dart';
 import '../Models/User.dart';
-import 'package:http/http.dart' as http;
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -188,7 +187,7 @@ Future<Map<int, QueryDocumentSnapshot<Object?>>>
 
     for (var team in docs) {
       //ScoutTeam scoutTeam = new ScoutTeam.fromJson(newTeam);
-      teams[team.get("number")] = team;
+      teams[team.get("scoutedTeam")] = team;
     }
   }
   return teams;

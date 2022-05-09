@@ -4,8 +4,6 @@ class DialogMessage extends StatelessWidget {
   final String title;
   final String content;
 
-
-
   DialogMessage({required this.title, required this.content});
 
   @override
@@ -26,5 +24,13 @@ showDialogMessage(context, title, content) {
       context: context,
       builder: (BuildContext context) {
         return DialogMessage(title: title, content: content);
+      });
+}
+
+showErrorDialogMessage(BuildContext context, String error) {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DialogMessage(title: "Error", content: error);
       });
 }

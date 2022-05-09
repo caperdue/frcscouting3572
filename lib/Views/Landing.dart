@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Views/Login/Login.dart';
 import 'package:frcscouting3572/Views/Login/TeamSignup.dart';
+import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
 import 'package:frcscouting3572/Views/TabScreen.dart';
+import 'package:provider/provider.dart';
 import '../Network/Auth.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 
@@ -19,12 +22,11 @@ class _LandingState extends State<Landing> {
   bool teamAssigned = false;
   Future checkAuth() async {
     try {
-      print(auth.currentUser);
       if (auth.currentUser != null) {
         properlyAuthed = true;
         dynamic response =
             await apiHelper.get("Users/${auth.currentUser!.uid}");
-        user = User.fromJson(response);
+        this.user = User.fromJson(response);
         teamAssigned = true;
       }
     } on NotFoundException catch (e) {
@@ -35,41 +37,50 @@ class _LandingState extends State<Landing> {
     }
   }
 
-  void redirectUser() async {
-    await checkAuth();
-    if (properlyAuthed && teamAssigned) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        return TabScreen(user: user!);
-      }));
-    } else if (!properlyAuthed) {
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Login(user: user),
-          ));
-    } else if (properlyAuthed && !teamAssigned) {
-      showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (BuildContext context) {
-            return TeamSignup();
-          });
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () async {
-      redirectUser();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final UserBloc userBloc = Provider.of<UserBloc>(context);
+
     return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
+      body: FutureBuilder(
+        future: Future.delayed(Duration(seconds: 1), () => true),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            checkAuth().then((auth) {
+              if (properlyAuthed && teamAssigned) {
+                userBloc.setUserInitial(this.user!);
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) {
+                  return TabScreen();
+                }));
+              } else if (!properlyAuthed) {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Login(),
+                    ));
+              } else if (properlyAuthed && !teamAssigned) {
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return TeamSignup();
+                    });
+              } else {
+                showErrorDialogMessage(context, "Error during sign in process");
+              }
+            });
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          return Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }

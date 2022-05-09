@@ -8,18 +8,17 @@ String authToken = "cpchicken:c268bdc2-540d-4857-96bf-a7ed2d877fd5";
 final bytes = convert.utf8.encode(authToken);
 String encodedAuthToken = convert.base64.encode(bytes);
 
-Future getTeamsAtEvent(User user) async {
+Future<dynamic> getTeamsAtEvent(int season, String eventCode) async {
   List<dynamic> teams;
   final response = await http.get(
       Uri.parse(
-          "https://frc-api.firstinspires.org/v3.0/${user.season}/teams?eventCode=${user.eventCode}"),
+          "https://frc-api.firstinspires.org/v3.0/$season/teams?eventCode=$eventCode"),
       headers: {"Authorization": "Basic $encodedAuthToken"});
-
   if (response.statusCode == 200) {
     teams = convert.jsonDecode(response.body)['teams'];
     return teams;
   }
-  return Future.error("Failed to return teams from event");
+  return [];
 }
 
 Future getTeamInfo(int team) async {
@@ -33,18 +32,25 @@ Future getTeamInfo(int team) async {
   return Future.error("Failed to return team");
 }
 
-Future<List<dynamic>>? getEventsFromSeason(
-    int? season, String? district) async {
-  if (season != null) {
-    final url =
-        "https://frc-api.firstinspires.org/v3.0/$season/events${district != null ? ("?districtCode=${json.decode(district)["code"]}") : ""}";
-    final response = await http.get(Uri.parse(url),
-        headers: {"Authorization": "Basic $encodedAuthToken"});
-    if (response.statusCode == 200) {
-      return convert.jsonDecode(response.body)["Events"].toList();
-    } else {
-      print("Failed to return events");
+Future<List<dynamic>>? getEventsFromSeason(int? season, String district) async {
+  try {
+    print("Season: $season");
+
+    print("District: $district");
+    if (season != null) {
+      final url =
+          "https://frc-api.firstinspires.org/v3.0/$season/events?districtCode=$district";
+      final response = await http.get(Uri.parse(url),
+          headers: {"Authorization": "Basic $encodedAuthToken"});
+      if (response.statusCode == 200) {
+        return convert.jsonDecode(response.body)["Events"].toList();
+      } else {
+        print("Failed to return events");
+      }
     }
+  } catch (e) {
+    print(e);
+    return [];
   }
   return [];
 }
@@ -55,8 +61,10 @@ Future<List<dynamic>> getDistrictsFromSeason(int? season) async {
         Uri.parse("https://frc-api.firstinspires.org/v3.0/$season/districts"),
         headers: {"Authorization": "Basic $encodedAuthToken"});
     if (response.statusCode == 200) {
-      List<dynamic> decoded =
-          json.decode(response.body)["districts"].map((item) => item).toList();
+      List<dynamic> decoded = json
+          .decode(response.body)["districts"]
+          .map((item) => item["code"])
+          .toList();
       return decoded;
     }
   }

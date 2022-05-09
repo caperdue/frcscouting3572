@@ -1,10 +1,9 @@
-import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Views/Pit%20Scouting/Subviews/TeamScoutList.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:frcscouting3572/Views/Shared/EventSeasonBanner.dart';
 
 class Scout extends StatefulWidget {
-  final User user;
-  Scout({required this.user});
+  Scout();
 
   @override
   _ScoutState createState() => _ScoutState();
@@ -26,7 +25,9 @@ class _ScoutState extends State<Scout> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Column(children: <Widget>[
+      EventSeasonBanner(),
       CupertinoSearchTextField(
         controller: searchController,
         onChanged: (search) {
@@ -34,8 +35,7 @@ class _ScoutState extends State<Scout> {
         },
       ),
       TeamScoutList(
-        searchText: searchController.text,
-        user: widget.user,
+        searchText: searchController.text
       ),
     ]);
   }

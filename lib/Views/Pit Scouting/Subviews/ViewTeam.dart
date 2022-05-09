@@ -1,16 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
-import 'package:frcscouting3572/Models/User.dart';
+//import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
+import 'package:frcscouting3572/Network/APIHelper.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
-import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
-
-import '../../../Network/db.dart' as db;
+import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
+import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class ViewTeam extends StatefulWidget {
-  final User user;
   final ScoutTeam scoutTeam;
   String? uid;
   final String? school;
@@ -28,8 +27,7 @@ class ViewTeam extends StatefulWidget {
       required this.city,
       required this.nickname,
       required this.state,
-      required this.stats,
-      required this.user});
+      required this.stats});
 
   @override
   _ViewTeamState createState() => _ViewTeamState();
@@ -41,8 +39,6 @@ class _ViewTeamState extends State<ViewTeam> {
   dynamic teamInfo;
   late int likedKey; //Default slider value
   bool editMode = false;
-  DocumentSnapshot<Map<String, dynamic>>?
-      scoutTeamSnapshot; //Capture to do things later
   TextEditingController commentsController = TextEditingController();
 
   late ScoutTeam
@@ -72,6 +68,7 @@ class _ViewTeamState extends State<ViewTeam> {
 
   @override
   Widget build(BuildContext context) {
+    final UserBloc userBloc = Provider.of<UserBloc>(context);
     final List<Widget> buttons = [
       Container(
           width: (MediaQuery.of(context).size.width) / 8,
@@ -123,19 +120,10 @@ class _ViewTeamState extends State<ViewTeam> {
                   setState(() {
                     this.editMode = false;
                   });
-                  if (scoutTeamSnapshot == null) {
-                    //No team was created. Just exit.
-                    Navigator.pop(context);
-                  } else {
-                    //nickController.text = teamBeforeChanges.nickname;
-                    commentsController.text = teamBeforeChanges.comments;
-                    setLikeStatusToggle(
-                        teamBeforeChanges.likeStatus); //Just default
-                  }
                 })
             : BackButton(),
         title: Text(
-          "Team ${widget.scoutTeam.number}",
+          "Team ${widget.scoutTeam.scoutedTeam}",
           textAlign: TextAlign.center,
         ),
         actions: <Widget>[
@@ -145,10 +133,10 @@ class _ViewTeamState extends State<ViewTeam> {
                   try {
                     int season;
                     String eventCode;
-                    season = widget.user.season;
-                    eventCode = widget.user.eventCode!;
-                    final newTeam = ScoutTeam(
-                        number: widget.scoutTeam.number,
+                    season = userBloc.user.season;
+                    eventCode = userBloc.user.eventCode!;
+                    final scoutTeam = ScoutTeam(
+                        scoutedTeam: widget.scoutTeam.scoutedTeam,
                         likeStatus: likedKey,
                         comments: commentsController.text,
                         images: null,
@@ -156,29 +144,16 @@ class _ViewTeamState extends State<ViewTeam> {
                         createdBy: auth.currentUser!.uid,
                         season: season,
                         eventCode: eventCode,
-                        assignedTeam: widget.user.team!);
+                        assignedTeam: userBloc.user.team);
 
                     if (widget.uid != null) {
-                      db
-                          .updateTeam(widget.uid, newTeam.toJson())
-                          .then((result) {
-                        showSnackBar(context, 'Saved successfully!', kGreen);
-                        teamBeforeChanges = newTeam;
-                      });
+                      await apiHelper.post(
+                          "ScoutData/${widget.uid}/update", scoutTeam);
                     } else {
-                      db
-                          .addTeam(newTeam.toJson())
-                          .then((DocumentReference teamDoc) {
-                        showSnackBar(context, 'Saved successfully!', kGreen);
-                        teamBeforeChanges = newTeam;
-                        widget.uid = teamDoc.id;
-                      });
+                      await apiHelper.post("ScoutData/create", scoutTeam);
                     }
                   } catch (e) {
-                    showSnackBar(
-                        context,
-                        'There was an error while saving. Please try again: $e',
-                        kRed);
+                    showErrorDialogMessage(context, e.toString());
                   }
                 }
                 setState(() {

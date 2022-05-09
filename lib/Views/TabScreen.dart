@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Views/Shared/EventSeasonBanner.dart';
-import '../Models/User.dart';
-import 'Pit Scouting/Scout.dart';
-import 'Settings/Settings.dart' as Settings;
+import 'package:frcscouting3572/Views/Pit Scouting/Scout.dart';
+import 'package:frcscouting3572/Views/Settings/Settings.dart' as Settings;
 
-// ignore: must_be_immutable
 class TabScreen extends StatefulWidget {
-  User user;
-  TabScreen({required this.user});
+  TabScreen();
 
   @override
   _TabScreenState createState() => _TabScreenState();
@@ -27,7 +23,7 @@ class _TabScreenState extends State<TabScreen> {
           appBar: AppBar(
             title: Text("FRC Scouting"),
             bottom: PreferredSize(
-                preferredSize: new Size(0, 75.0),
+                preferredSize: new Size(0, 30.0),
                 child: Column(
                   children: <Widget>[
                     TabBar(
@@ -60,16 +56,14 @@ class _TabScreenState extends State<TabScreen> {
                         ),
                       ],
                     ),
-                    // EventSeasonBanner()
-                    EventSeasonBanner(),
                   ],
                 )),
           ),
           body: TabBarView(children: [
-            Scout(user: widget.user),
+            Scout(),
             Text("Overall stats view"),
             Text('Tab 3'),
-            Settings.Settings(user: widget.user), //TODO: fix this ugliness!
+            Settings.Settings(), //TODO: fix this ugliness!
           ])),
     );
   }

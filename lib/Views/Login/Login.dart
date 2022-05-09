@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 import 'package:frcscouting3572/Views/TabScreen.dart';
-import '../../Network/Auth.dart';
-import 'TeamSignup.dart';
+import 'package:frcscouting3572/Network/Auth.dart';
+import 'package:frcscouting3572/Views/Login/TeamSignup.dart';
+import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class Login extends StatefulWidget {
-  User? user;
-  Login({required this.user});
+  Login();
 
   _LoginState createState() => _LoginState();
 }
@@ -31,6 +33,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+     final UserBloc userBloc = Provider.of<UserBloc>(context);
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(title: Text('FRC Scouting Login')),
@@ -41,11 +44,11 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
               signInWithGoogle().then((result) async {
                  dynamic response =
                  await apiHelper.get("Users/${auth.currentUser!.uid}");
-                 widget.user = User.fromJson(response);
-                if (widget.user != null) {
+                 userBloc.user = User.fromJson(response);
+                if (userBloc.user.team != 0) { // No team can have 0
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) {
-                    return TabScreen(user: widget.user!);
+                    return TabScreen();
                   }));
                 } else {
                   setState(() {

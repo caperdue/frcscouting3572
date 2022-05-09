@@ -1,9 +1,10 @@
 class User {
-  int team = 0;
+  late int team;
+  late String name;
   int season = DateTime.now().year;
   String? eventCode;
   String? district;
-  String name = "";
+  
 
   User({required this.team, required this.name});
 

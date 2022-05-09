@@ -30,7 +30,7 @@ class _TeamCardState extends State<TeamCard> {
               Container(
                 width: screenSize.width / 6,
                 child: Text(
-                  widget.scoutTeam.number.toString(),
+                  widget.scoutTeam.scoutedTeam.toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: kNavy, fontWeight: FontWeight.bold),
                 ),

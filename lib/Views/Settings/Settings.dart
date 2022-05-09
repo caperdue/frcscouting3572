@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Views/Settings/Subviews/EventSettings.dart';
 import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
-import '../../Network/Auth.dart';
+import 'package:frcscouting3572/Network/Auth.dart';
+import 'package:provider/provider.dart';
 
 class Settings extends StatefulWidget {
-  final User user;
-  Settings({required this.user});
+  Settings();
 
   @override
   _SettingsState createState() => _SettingsState();
 }
 
 class _SettingsState extends State<Settings> {
+
   @override
   Widget build(BuildContext context) {
+      final UserBloc userBloc = Provider.of<UserBloc>(context); 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -23,7 +25,7 @@ class _SettingsState extends State<Settings> {
           ElevatedButton(
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return EventSettings(user: widget.user);
+                return EventSettings(tempUser: userBloc.user);
               }));
             },
             child: Text('Change Season/Event'),
