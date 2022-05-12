@@ -5,7 +5,6 @@ import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
-import 'package:frcscouting3572/Network/DatabaseHandler.dart';
 import 'package:frcscouting3572/Views/TabScreen.dart';
 import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
 import 'package:provider/provider.dart';
@@ -92,12 +91,6 @@ class _TeamSignupState extends State<TeamSignup> {
           team: this.team!.number,
           name: nameController.text);
       await apiHelper.post("Users/${auth.currentUser!.uid}/create", user);
-      // Save user to cache as well
-      await dbHandler.insertUser(user);
-      User? userFromCache = await dbHandler.getUser();
-      if (userFromCache == null) {
-        await dbHandler.insertUser(user);
-      }
  
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: kGreen,

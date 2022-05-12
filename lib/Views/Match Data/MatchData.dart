@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Models/blocs/MatchQueryBloc.dart';
-import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
+//import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Views/Shared/CustomToggleButtons.dart';
 import 'package:frcscouting3572/Views/Shared/EventSeasonBanner.dart';
 
@@ -48,8 +48,8 @@ class _MatchDataState extends State<MatchData> {
                   child: CustomToggleButtons(
                       buttonState: buttonState,
                       buttons: buttons,
-                      value: viewSelection,
-                      enabled: true,
+                      initialValue: viewSelection,
+                      initialEnabled: true,
                       onPressed: (int index) {
                         viewSelection = index;
                       }),

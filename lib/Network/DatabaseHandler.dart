@@ -1,3 +1,4 @@
+import 'package:frcscouting3572/Models/ExtraUserInfo.dart';
 import 'package:frcscouting3572/Models/User.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -11,8 +12,9 @@ class DatabaseHandler {
       join(path, 'default.db'),
       onCreate: (database, version) async {
         await database.execute(
-            //"""CREATE TABLE ExtraUserInformation(uuid INTEGER PRIMARY KEY AUTOINCREMENT, eventName TEXT, startDate TEXT, endDate TEXT, seasonDesc TEXT)
-            "CREATE TABLE User(uuid TEXT PRIMARY KEY, team INTEGER NOT NULL, name TEXT NOT NULL, season INTEGER NOT NULL, eventCode TEXT, district TEXT)");
+            """CREATE TABLE IF NOT EXISTS User(uuid MEDIUMTEXT PRIMARY KEY, team INTEGER NOT NULL, name MEDIUMTEXT NOT NULL, season INTEGER NOT NULL, eventCode MEDIUMTEXT, district MEDIUMTEXT)""");
+        await database.execute(
+            """CREATE TABLE IF NOT EXISTS ExtraUserInfo(uuid MEDIUMTEXT PRIMARY KEY, eventName MEDIUMTEXT, name MEDIUMTEXT, startDate MEDIUMTEXT, endDate MEDIUMTEXT, seasonDesc MEDIUMTEXT)""");
       },
       version: 1,
     );
@@ -32,6 +34,7 @@ class DatabaseHandler {
       User user = User.fromJson(maps[0]);
       return user;
     }
+    return null;
   }
 
   Future<User> updateUser(User user) async {
@@ -40,5 +43,33 @@ class DatabaseHandler {
         where: "uuid = ?", whereArgs: [user.uuid]);
 
     return user;
+  }
+
+  Future<ExtraUserInfo?> getExtraUserInformation() async {
+    final Database db = await initializeDB();
+    print(await db.query("ExtraUserInfo"));
+    final List<Map<String, dynamic>> maps = await db.query("ExtraUserInfo");
+    if (maps.length == 1) {
+      ExtraUserInfo extraUserInfo = ExtraUserInfo.fromJson(maps[0]);
+      return extraUserInfo;
+    }
+    return null;
+  }
+
+  Future<ExtraUserInfo> updateExtraUserInformation(
+      ExtraUserInfo extraUserInfo) async {
+    final Database db = await initializeDB();
+    await db.update("ExtraUserInfo", extraUserInfo.toJson(),
+        where: "uuid = ?", whereArgs: [extraUserInfo.uuid]);
+
+    return extraUserInfo;
+  }
+
+  Future<ExtraUserInfo> insertExtraUserInformation(
+      ExtraUserInfo extraUserInfo) async {
+    final Database db = await initializeDB();
+    await db.insert("ExtraUserInfo", extraUserInfo.toJson());
+
+    return extraUserInfo;
   }
 }

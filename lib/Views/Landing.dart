@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
+import 'package:frcscouting3572/Network/DatabaseHandler.dart';
 import 'package:frcscouting3572/Views/Login/Login.dart';
 import 'package:frcscouting3572/Views/Login/TeamSignup.dart';
 import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
@@ -33,14 +34,17 @@ class Landing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UserBloc userBloc = Provider.of<UserBloc>(context);
+
     return Scaffold(
       body: FutureBuilder(
         future: Future.delayed(Duration(seconds: 1), () => true),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            checkAuth().then((auth) {
+            checkAuth().then((auth) async {
               if (properlyAuthed && teamAssigned) {
-                userBloc.setUserInitial(this.user!);
+                await userBloc.setUserInitial(this.user!);
+                await userBloc.initializeExtraUserInformation();
+
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) {
                   return TabScreen();

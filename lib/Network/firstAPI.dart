@@ -1,4 +1,3 @@
-
 import 'package:frcscouting3572/Models/Event.dart';
 import 'package:frcscouting3572/Models/Team.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
@@ -7,9 +6,9 @@ import 'APIHelper.dart';
 
 Future<List<String>> getDistrictsBySeason(int season) async {
   final districtJSON = await tbaHelper.get("districts/2022") as List<dynamic>;
-  List<String> districts = List<String>.from(districtJSON.map(
-      (district) => district["abbreviation"]));
-
+  List<String> districts = List<String>.from(
+      districtJSON.map((district) => district["abbreviation"]));
+  districts.add("Other");
   return districts;
 }
 

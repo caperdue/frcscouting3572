@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Models/District.dart';
 import 'package:frcscouting3572/Models/Event.dart';
-import 'package:frcscouting3572/Models/ExtraUserInformation.dart';
+import 'package:frcscouting3572/Models/ExtraUserInfo.dart';
 import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
@@ -27,7 +26,7 @@ class _EventSettingsState extends State<EventSettings> {
   final GlobalKey<FormState> seasonKey = GlobalKey();
 
   TextEditingController seasonController = TextEditingController();
-  List<District> districts = [];
+  List<String> districts = [];
   @override
   void initState() {
     super.initState();
@@ -66,12 +65,21 @@ class _EventSettingsState extends State<EventSettings> {
                     tempUser.season = this.season!;
                     tempUser.district = this.selectedDistrict;
                     tempUser.eventCode = this.selectedEventCode;
+
                     await apiHelper.post(
                         "Users/${auth.currentUser!.uid}/update", userBloc.user);
-                    userBloc.extraUserInformation.seasonDesc =
+                    ExtraUserInfo tempUserInfo = userBloc.extraUserInfo;
+
+                    tempUserInfo.seasonDesc =
                         await firstAPI.getSeasonInformation(this.season!);
+                    tempUserInfo.uuid = userBloc.user.uuid;
+                    tempUserInfo.eventName = this.selectedEvent!.name;
+                    tempUserInfo.startDate = this.selectedEvent!.startDate;
+                    tempUserInfo.endDate = this.selectedEvent!.endDate;
+                    userBloc.extraUserInfo = tempUserInfo;
+
+                    print(tempUserInfo.toJson());
                     userBloc.user = tempUser;
-                    userBloc.extraUserInformation.event = this.selectedEvent!;
 
                     Navigator.of(context).pop();
                   }
@@ -127,7 +135,7 @@ class _EventSettingsState extends State<EventSettings> {
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         var response = snapshot.data as List<dynamic>;
-                        this.districts = List<District>.from(response);
+                        this.districts = List<String>.from(response);
                         if (this.selectedDistrict == null)
                           this.selectedDistrict = response[0];
 
@@ -152,7 +160,7 @@ class _EventSettingsState extends State<EventSettings> {
                                             child: DropdownButtonHideUnderline(
                                               child: DropdownButton<dynamic>(
                                                 value: this.selectedDistrict,
-                                                hint: Text("District"),
+                                                hint: Text("String"),
                                                 onChanged: (val) {
                                                   setState(() {
                                                     this.selectedDistrict = val;
@@ -162,10 +170,10 @@ class _EventSettingsState extends State<EventSettings> {
                                                 },
                                                 items: districts
                                                     .map<DropdownMenuItem>(
-                                                        (District district) {
+                                                        (String district) {
                                                   return DropdownMenuItem(
-                                                    value: district.name,
-                                                    child: Text(district.name),
+                                                    value: district,
+                                                    child: Text(district),
                                                   );
                                                 }).toList(),
                                               ),

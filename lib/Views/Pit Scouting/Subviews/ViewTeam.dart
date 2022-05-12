@@ -196,8 +196,8 @@ class _ViewTeamState extends State<ViewTeam> {
                           child: CustomToggleButtons(
                               buttonState: buttonState,
                               buttons: buttons,
-                              enabled: editMode,
-                              value: likedKey,
+                              initialEnabled: editMode,
+                              initialValue: likedKey,
                               onPressed: (int index) {
                                 likedKey = index;
                               }),
