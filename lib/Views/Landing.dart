@@ -9,14 +9,7 @@ import 'package:provider/provider.dart';
 import '../Network/Auth.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 
-class Landing extends StatefulWidget {
-  const Landing({Key? key}) : super(key: key);
-
-  @override
-  _LandingState createState() => _LandingState();
-}
-
-class _LandingState extends State<Landing> {
+class Landing extends StatelessWidget {
   User? user;
   bool properlyAuthed = false;
   bool teamAssigned = false;
@@ -26,7 +19,7 @@ class _LandingState extends State<Landing> {
         properlyAuthed = true;
         dynamic response =
             await apiHelper.get("Users/${auth.currentUser!.uid}");
-        this.user = User.fromJson(response);
+        this.user = User.fromJson(response["message"]);
         teamAssigned = true;
       }
     } on NotFoundException catch (e) {
@@ -38,14 +31,8 @@ class _LandingState extends State<Landing> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final UserBloc userBloc = Provider.of<UserBloc>(context);
-
     return Scaffold(
       body: FutureBuilder(
         future: Future.delayed(Duration(seconds: 1), () => true),

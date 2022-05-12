@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
+import 'package:frcscouting3572/Models/Team.dart';
+import 'package:frcscouting3572/Models/blocs/ScoutDataBloc.dart';
 //import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
+import 'package:frcscouting3572/Views/Shared/CustomToggleButtons.dart';
 import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
 import 'package:provider/provider.dart';
 
@@ -12,22 +15,14 @@ import 'package:provider/provider.dart';
 class ViewTeam extends StatefulWidget {
   final ScoutTeam scoutTeam;
   String? uid;
-  final String? school;
-  final int? rookieYear;
-  final String? city;
-  final String? state;
-  final String? nickname;
+  final Team registeredTeam;
   final Map<String, dynamic>? stats;
 
   ViewTeam(
       {required this.scoutTeam,
-      required this.uid,
-      required this.school,
-      required this.rookieYear,
-      required this.city,
-      required this.nickname,
-      required this.state,
-      required this.stats});
+      required this.registeredTeam,
+      this.stats,
+      this.uid});
 
   @override
   _ViewTeamState createState() => _ViewTeamState();
@@ -56,22 +51,17 @@ class _ViewTeamState extends State<ViewTeam> {
     this.editMode = false;
     commentsController.text = widget.scoutTeam.comments;
     likedKey = widget.scoutTeam.likeStatus;
-    setLikeStatusToggle(likedKey);
-  }
-
-  void setLikeStatusToggle(int selected) {
-    for (int i = 0; i < buttonState.length; i++) {
-      buttonState[i] = i == selected;
-      likedKey = selected;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final UserBloc userBloc = Provider.of<UserBloc>(context);
+    final ScoutDataBloc scoutDataBloc = Provider.of<ScoutDataBloc>(context);
+    final Size screenSize = MediaQuery.of(context).size;
     final List<Widget> buttons = [
       Container(
-          width: (MediaQuery.of(context).size.width) / 8,
+          decoration: BoxDecoration(shape: BoxShape.circle),
+          width: screenSize.width / 8,
           child: new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -83,7 +73,7 @@ class _ViewTeamState extends State<ViewTeam> {
             ],
           )),
       Container(
-          width: (MediaQuery.of(context).size.width) / 8,
+          width: screenSize.width / 8,
           child: new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -95,7 +85,7 @@ class _ViewTeamState extends State<ViewTeam> {
             ],
           )),
       Container(
-          width: (MediaQuery.of(context).size.width) / 8,
+          width: screenSize.width / 8,
           child: new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -149,8 +139,10 @@ class _ViewTeamState extends State<ViewTeam> {
                     if (widget.uid != null) {
                       await apiHelper.post(
                           "ScoutData/${widget.uid}/update", scoutTeam);
+                      scoutDataBloc.edit(scoutTeam);
                     } else {
                       await apiHelper.post("ScoutData/create", scoutTeam);
+                      scoutDataBloc.add(scoutTeam);
                     }
                   } catch (e) {
                     showErrorDialogMessage(context, e.toString());
@@ -163,45 +155,56 @@ class _ViewTeamState extends State<ViewTeam> {
               child: Text(this.editMode ? 'Save' : 'Edit'))
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-        child: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Stack(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                        child: Text(
-                      "${widget.nickname}",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[800],
-                          fontSize: 20),
-                      overflow: TextOverflow.ellipsis,
-                    )),
-                    ToggleButtons(
-                      borderColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      children: buttons,
-                      isSelected: buttonState,
-                      onPressed: (int index) {
-                        if (editMode) {
-                          setState(() {
-                            setLikeStatusToggle(index);
-                          });
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Stack(
+            children: <Widget>[
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                      child: Container(
+                        color: kAquaMarine,
+                        width: screenSize.width,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Text(
+                    "${widget.registeredTeam.nickname}", textAlign: TextAlign.center,
+                    style: TextStyle(
+                            fontWeight: FontWeight.bold, color: kNavy, fontSize: 20),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                        ),
+                      )),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    SizedBox(height: 60),
+                    SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          height: 35,
+                          child: CustomToggleButtons(
+                              buttonState: buttonState,
+                              buttons: buttons,
+                              enabled: editMode,
+                              value: likedKey,
+                              onPressed: (int index) {
+                                likedKey = index;
+                              }),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 10),
                     TextFormField(
                       controller: commentsController,
                       keyboardType: TextInputType.multiline,
@@ -224,10 +227,12 @@ class _ViewTeamState extends State<ViewTeam> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text("School: ${widget.school}"),
-                                Text("Rookie Year: ${widget.rookieYear}"),
-                                Text("City: ${widget.city}"),
-                                Text("State: ${widget.state}")
+                                Text(
+                                    "School: ${widget.registeredTeam.schoolName}"),
+                                Text(
+                                    "Rookie Year: ${widget.registeredTeam.rookieYear}"),
+                                Text("City: ${widget.registeredTeam.city}"),
+                                Text("State: ${widget.registeredTeam.state}")
                               ],
                             ),
                             title: Text("Additional Information",
@@ -236,8 +241,8 @@ class _ViewTeamState extends State<ViewTeam> {
                                     fontWeight: FontWeight.bold)))),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

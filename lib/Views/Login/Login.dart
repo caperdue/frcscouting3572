@@ -44,7 +44,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
               signInWithGoogle().then((result) async {
                  dynamic response =
                  await apiHelper.get("Users/${auth.currentUser!.uid}");
-                 userBloc.user = User.fromJson(response);
+                 userBloc.user = User.fromJson(response["message"]);
                 if (userBloc.user.team != 0) { // No team can have 0
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) {

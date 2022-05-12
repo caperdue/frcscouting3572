@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
-import 'package:frcscouting3572/Models/User.dart';
+import 'package:frcscouting3572/Models/Team.dart';
+import 'package:frcscouting3572/Models/blocs/QueryBloc.dart';
+import 'package:frcscouting3572/Models/blocs/ScoutDataBloc.dart';
 import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
@@ -12,49 +14,36 @@ import 'package:provider/provider.dart';
 import '../../../Network/firstAPI.dart' as firstAPI;
 
 // ignore: must_be_immutable
-class TeamScoutList extends StatefulWidget {
-  String searchText;
-  TeamScoutList({required this.searchText});
+class TeamScoutList extends StatelessWidget {
   List<dynamic> frcTeams = [];
 
-  @override
-  _TeamScoutListState createState() => _TeamScoutListState();
-}
-
-class _TeamScoutListState extends State<TeamScoutList> {
-  dynamic scoutedTeams = [];
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   Future<List> getScoutData(
-      int season, String eventCode, int assignedTeam) async {
+      int season, String eventCode, int assignedTeam, String searchText) async {
     List<dynamic> allScoutInformation = [];
-    List<dynamic> teamsFromAPI =
-        await firstAPI.getTeamsAtEvent(season, eventCode);
-    List<dynamic> teams = queryTeams(teamsFromAPI);
+    List<Team> teamsFromAPI =
+        List<Team>.from(await firstAPI.getTeamsByEvent(season, eventCode));
+    List<Team> teams = queryTeams(teamsFromAPI, searchText);
     allScoutInformation.add(teams);
     List<int> teamNums = [];
     String commaSeparatedTeamNums = "";
     teams.forEach((team) {
-      teamNums.add(team["teamNumber"]);
+      teamNums.add(team.teamNumber);
     });
 
     commaSeparatedTeamNums = teamNums.join(",");
-    allScoutInformation.add(await apiHelper.get(
-        "ScoutData/${auth.currentUser!.uid}/teamScoutData?eventCode=eventCode&assignedTeam=$assignedTeam&season=$season&teams=$commaSeparatedTeamNums"));
+    var scoutDataJSON = await apiHelper.get(
+        "ScoutData/${auth.currentUser!.uid}/teamScoutData?eventCode=$eventCode&assignedTeam=$assignedTeam&season=$season&teams=$commaSeparatedTeamNums");
+    allScoutInformation.add(scoutDataJSON["message"]);
     return allScoutInformation;
   }
 
-  List<dynamic> queryTeams(List<dynamic> teams) {
-    List<dynamic> filteredTeams = teams.where((team) {
-      String teamNumber = team["teamNumber"].toString();
-      String nameShort = team["nameShort"].toLowerCase();
-      String lowerCaseSearch = widget.searchText.toLowerCase();
+  List<Team> queryTeams(List<Team> teams, String searchText) {
+    List<Team> filteredTeams = teams.where((team) {
+      String teamNumber = team.teamNumber.toString();
+      String name = team.nickname.toString();
+      String lowerCaseSearch = searchText.toLowerCase();
       if (teamNumber.contains(RegExp("^$lowerCaseSearch")) ||
-          nameShort.contains(RegExp("^$lowerCaseSearch"))) {
+          name.contains(RegExp("^$lowerCaseSearch"))) {
         return true;
       }
       return false;
@@ -65,11 +54,13 @@ class _TeamScoutListState extends State<TeamScoutList> {
 
   Widget build(BuildContext context) {
     final UserBloc userBloc = Provider.of<UserBloc>(context);
-    print(auth.currentUser);
-    return Expanded(
+    final QueryBloc queryBloc = Provider.of<QueryBloc>(context);
+    Provider.of<ScoutDataBloc>(context);
+    print(userBloc.user.toJson());
+    return userBloc.user.eventCode != null ? Expanded(
         child: FutureBuilder(
             future: getScoutData(userBloc.user.season, userBloc.user.eventCode!,
-                userBloc.user.team),
+                userBloc.user.team, queryBloc.searchText),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 try {
@@ -79,8 +70,8 @@ class _TeamScoutListState extends State<TeamScoutList> {
                       physics: ScrollPhysics(),
                       itemCount: scoutDataList[0].length,
                       itemBuilder: (context, index) {
-                        final registeredTeam = scoutDataList[0][index];
-                        int teamNumber = registeredTeam["teamNumber"];
+                        final Team registeredTeam = scoutDataList[0][index];
+                        int teamNumber = registeredTeam.teamNumber;
                         ScoutTeam scoutTeam = ScoutTeam(
                             scoutedTeam: teamNumber,
                             likeStatus: 1,
@@ -92,9 +83,7 @@ class _TeamScoutListState extends State<TeamScoutList> {
                             season: userBloc.user.season,
                             assignedTeam: userBloc.user.team);
                         String? scoutDataUID;
-                        Map<String, dynamic> teamJSON =
-                            scoutDataList[1][index]; // THIS LINE FAILS
-
+                        Map<String, dynamic> teamJSON = scoutDataList[1][index];
                         if (teamJSON["scoutData"] != null) {
                           Map<String, dynamic> scoutDataJSON =
                               teamJSON["scoutData"]["data"];
@@ -109,20 +98,13 @@ class _TeamScoutListState extends State<TeamScoutList> {
                                   MaterialPageRoute(
                                       builder: (context) => ViewTeam(
                                           scoutTeam: scoutTeam,
-                                          school: registeredTeam["schoolName"],
-                                          rookieYear:
-                                              registeredTeam["rookieYear"],
-                                          city: registeredTeam["city"],
-                                          state: registeredTeam["stateProv"],
-                                          nickname: registeredTeam["nameShort"],
-                                          stats: {},
-                                          uid: scoutDataUID))).then((val) {
-                                setState(() {});
-                              });
+                                          registeredTeam: registeredTeam,
+                                          uid: scoutDataUID,
+                                          stats: null)));
                             },
                             child: TeamCard(
                                 scoutTeam: scoutTeam,
-                                nickname: registeredTeam['nameShort'],
+                                nickname: registeredTeam.nickname,
                                 numLikes: teamJSON["likes"],
                                 numDislikes: teamJSON["dislikes"]));
                       });
@@ -131,6 +113,6 @@ class _TeamScoutListState extends State<TeamScoutList> {
                 }
               }
               return Center(child: CircularProgressIndicator());
-            }));
+            })): Center(child: Text("Please go to settings to select an event to scout."));
   }
 }

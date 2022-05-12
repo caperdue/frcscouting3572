@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:frcscouting3572/Models/blocs/QueryBloc.dart';
+import 'package:frcscouting3572/Models/blocs/ScoutDataBloc.dart';
 import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
+import 'package:frcscouting3572/Models/blocs/MatchQueryBloc.dart';
 import 'package:provider/provider.dart';
 import 'Constants.dart';
 import '../Views/Landing.dart';
@@ -69,7 +72,15 @@ class _AppState extends State<App> {
         }
       },
       child: MultiProvider(
-        providers: [ChangeNotifierProvider(create: (BuildContext context) => UserBloc())],
+        providers: [
+          ChangeNotifierProvider(create: (BuildContext context) => UserBloc()),
+          ChangeNotifierProvider(
+              create: (BuildContext context) => ScoutDataBloc()),
+           ChangeNotifierProvider(
+              create: (BuildContext context) => QueryBloc()),
+               ChangeNotifierProvider(
+              create: (BuildContext context) => MatchQueryBloc()),
+        ],
         child: MaterialApp(
           theme: ThemeData.light().copyWith(
             textButtonTheme: TextButtonThemeData(
@@ -79,9 +90,6 @@ class _AppState extends State<App> {
             snackBarTheme: SnackBarThemeData(
               backgroundColor: kDarkBlue,
             ),
-            floatingActionButtonTheme: FloatingActionButtonThemeData(
-              backgroundColor: kBlue,
-            ),
             textTheme: Theme.of(context).textTheme.apply(
                   bodyColor: kDarkBlue,
                   displayColor: kNavy,
@@ -89,11 +97,11 @@ class _AppState extends State<App> {
             appBarTheme: AppBarTheme(
               color: kNavy,
             ),
+            scaffoldBackgroundColor: Colors.white,
           ),
           initialRoute: '/',
           routes: {
             '/': (context) => Landing(),
-            '/view': (context) => Container(),
           },
         ),
       ),

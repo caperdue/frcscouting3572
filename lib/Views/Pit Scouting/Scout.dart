@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:frcscouting3572/Models/blocs/QueryBloc.dart';
 import 'package:frcscouting3572/Views/Pit%20Scouting/Subviews/TeamScoutList.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:frcscouting3572/Views/Shared/EventSeasonBanner.dart';
+import 'package:provider/provider.dart';
 
 class Scout extends StatefulWidget {
   Scout();
@@ -25,18 +28,33 @@ class _ScoutState extends State<Scout> {
 
   @override
   Widget build(BuildContext context) {
-    
-    return Column(children: <Widget>[
+    QueryBloc queryBloc = Provider.of<QueryBloc>(context);
+    return Column( 
+      children: <Widget>[
       EventSeasonBanner(),
-      CupertinoSearchTextField(
-        controller: searchController,
-        onChanged: (search) {
-          setState(() {});
-        },
+      Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: CupertinoSearchTextField(
+                controller: searchController,
+                onChanged: (text) {
+                  queryBloc.searchText = text;
+                },
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                setState(() {});
+              },
+            )
+          ],
+        ),
       ),
-      TeamScoutList(
-        searchText: searchController.text
-      ),
+      TeamScoutList(),
     ]);
   }
 }

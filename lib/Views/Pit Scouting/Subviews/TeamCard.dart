@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Models/ScoutTeam.dart';
 import '../../../Constants.dart';
 
-class TeamCard extends StatefulWidget {
+class TeamCard extends StatelessWidget {
   final ScoutTeam scoutTeam;
   final String? nickname;
   final int numLikes;
   final int numDislikes;
   const TeamCard({required this.scoutTeam, required this.nickname, required this.numLikes, required this.numDislikes});
 
-  @override
-  _TeamCardState createState() => _TeamCardState();
-}
-
-class _TeamCardState extends State<TeamCard> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -30,40 +25,40 @@ class _TeamCardState extends State<TeamCard> {
               Container(
                 width: screenSize.width / 6,
                 child: Text(
-                  widget.scoutTeam.scoutedTeam.toString(),
+                  this.scoutTeam.scoutedTeam.toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: kNavy, fontWeight: FontWeight.bold),
                 ),
               ),
-              //     if (widget.nickname != null)
-              if (widget.nickname != null) Text("|"),
-              if (widget.nickname != null) SizedBox(width: 5),
-              if (widget.nickname != null)
+              //     if (this.nickname != null)
+              if (this.nickname != null) Text("|"),
+              if (this.nickname != null) SizedBox(width: 5),
+              if (this.nickname != null)
                 Expanded(
                     child: Text(
-                  widget.nickname!,
+                  this.nickname!,
                   style: TextStyle(fontSize: 12),
                   maxLines: 3,
                   overflow: TextOverflow.fade,
                 )),
               //likeView(),
-              Text("${widget.numLikes}"),
+              Text("${this.numLikes}"),
               SizedBox(width: 2),
-              Icon(widget.scoutTeam.likeStatus == 2 ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined, size: 12, color: Colors.green),
+              Icon(this.scoutTeam.likeStatus == 2 ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined, size: 12, color: Colors.green),
               SizedBox(width: 4),
-              Text("${widget.numDislikes}"),
+              Text("${this.numDislikes}"),
               SizedBox(width: 2),
-              Icon(widget.scoutTeam.likeStatus == 0 ? Icons.thumb_down_alt_rounded : Icons.thumb_down_alt_outlined, size: 12, color: Colors.red)
+              Icon(this.scoutTeam.likeStatus == 0 ? Icons.thumb_down_alt_rounded : Icons.thumb_down_alt_outlined, size: 12, color: Colors.red)
             ],
           ),
           //LikeView(),
 
-          tileColor: Colors.white38),
+          tileColor: Colors.white),
     );
   }
 
   Widget likeView() {
-    switch (widget.scoutTeam.likeStatus) {
+    switch (this.scoutTeam.likeStatus) {
       case 0:
         return Icon(
           Icons.thumb_down_alt_rounded,

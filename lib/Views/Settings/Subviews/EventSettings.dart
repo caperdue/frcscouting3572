@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:frcscouting3572/Constants.dart';
+import 'package:frcscouting3572/Models/District.dart';
+import 'package:frcscouting3572/Models/Event.dart';
+import 'package:frcscouting3572/Models/ExtraUserInformation.dart';
 import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
 import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
-import 'package:frcscouting3572/Views/Shared/Snackbar.dart';
 import 'package:intl/intl.dart';
-import 'package:frcscouting3572/Network/firstAPI.dart';
+import 'package:frcscouting3572/Network/firstAPI.dart' as firstAPI;
 import 'package:provider/provider.dart';
 
 class EventSettings extends StatefulWidget {
@@ -21,25 +22,26 @@ class EventSettings extends StatefulWidget {
 class _EventSettingsState extends State<EventSettings> {
   int? season;
   String? selectedDistrict;
-  String? selectedEvent;
+  String? selectedEventCode;
+  Event? selectedEvent;
   final GlobalKey<FormState> seasonKey = GlobalKey();
 
   TextEditingController seasonController = TextEditingController();
-  List<dynamic> districts = [];
+  List<District> districts = [];
   @override
   void initState() {
     super.initState();
     this.season = widget.tempUser.season;
     seasonController.text = this.season.toString();
     if (widget.tempUser.eventCode != null)
-      selectedEvent = widget.tempUser.eventCode!;
+      selectedEventCode = widget.tempUser.eventCode!;
     if (widget.tempUser.district != null)
       selectedDistrict = widget.tempUser.district!;
   }
 
-  checkSelectedEvent(event) {
-    if (this.selectedEvent != null) {
-      if (this.selectedEvent == event["code"]) {
+  checkselectedEventCode(Event event) {
+    if (this.selectedEventCode != null) {
+      if (this.selectedEventCode == event.eventCode) {
         return Icon(Icons.check_box);
       }
     }
@@ -57,14 +59,20 @@ class _EventSettingsState extends State<EventSettings> {
           TextButton(
               onPressed: () async {
                 try {
-                  if (this.selectedEvent != null && this.season != null) {
+                  if (this.selectedEventCode != null &&
+                      this.season != null &&
+                      this.selectedEvent != null) {
                     User tempUser = userBloc.user;
                     tempUser.season = this.season!;
                     tempUser.district = this.selectedDistrict;
-                    tempUser.eventCode = this.selectedEvent;
+                    tempUser.eventCode = this.selectedEventCode;
                     await apiHelper.post(
                         "Users/${auth.currentUser!.uid}/update", userBloc.user);
+                    userBloc.extraUserInformation.seasonDesc =
+                        await firstAPI.getSeasonInformation(this.season!);
                     userBloc.user = tempUser;
+                    userBloc.extraUserInformation.event = this.selectedEvent!;
+
                     Navigator.of(context).pop();
                   }
                 } catch (e) {
@@ -97,7 +105,6 @@ class _EventSettingsState extends State<EventSettings> {
                             },
                             validator: (text) {
                               var season = int.tryParse(seasonController.text);
-                              print(season);
                               if (season != null &&
                                   season > 2005 &&
                                   season <= DateTime.now().year) {
@@ -116,20 +123,20 @@ class _EventSettingsState extends State<EventSettings> {
                     ],
                   ),
                   FutureBuilder(
-                    future: getDistrictsFromSeason(season),
+                    future: firstAPI.getDistrictsBySeason(season!),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         var response = snapshot.data as List<dynamic>;
-                        this.districts = response;
+                        this.districts = List<District>.from(response);
                         if (this.selectedDistrict == null)
                           this.selectedDistrict = response[0];
 
                         return FutureBuilder(
-                            future:
-                                getEventsFromSeason(season, selectedDistrict!),
+                            future: firstAPI.getEventsByDistrictAndSeason(
+                                season!, selectedDistrict!),
                             builder: ((context, snapshot) {
                               if (snapshot.hasData) {
-                                var events = snapshot.data as List<dynamic>;
+                                var events = snapshot.data as List<Event>;
                                 return Expanded(
                                   child: Column(
                                     children: [
@@ -149,14 +156,16 @@ class _EventSettingsState extends State<EventSettings> {
                                                 onChanged: (val) {
                                                   setState(() {
                                                     this.selectedDistrict = val;
+                                                    print(
+                                                        this.selectedDistrict);
                                                   });
                                                 },
                                                 items: districts
                                                     .map<DropdownMenuItem>(
-                                                        (value) {
+                                                        (District district) {
                                                   return DropdownMenuItem(
-                                                    value: value,
-                                                    child: Text(value),
+                                                    value: district.name,
+                                                    child: Text(district.name),
                                                   );
                                                 }).toList(),
                                               ),
@@ -173,29 +182,31 @@ class _EventSettingsState extends State<EventSettings> {
                                                   DateTime startDate =
                                                       DateTime.parse(
                                                           events[index]
-                                                              ["dateStart"]);
+                                                              .startDate);
                                                   DateTime endDate =
                                                       DateTime.parse(
                                                           events[index]
-                                                              ["dateEnd"]);
+                                                              .endDate);
                                                   return GestureDetector(
                                                     onTap: () {
                                                       setState(() {
-                                                        this.selectedEvent =
+                                                        this.selectedEventCode =
                                                             events[index]
-                                                                ["code"];
+                                                                .eventCode;
+
+                                                        this.selectedEvent =
+                                                            events[index];
                                                       });
                                                     },
                                                     child: ListTile(
                                                       trailing:
-                                                          checkSelectedEvent(
+                                                          checkselectedEventCode(
                                                               events[index]),
                                                       title: Row(
                                                         children: <Widget>[
                                                           Expanded(
                                                               child: Text(
-                                                            events[index]
-                                                                ["name"],
+                                                            events[index].name,
                                                             style: TextStyle(
                                                                 fontSize: 14,
                                                                 overflow:
@@ -219,10 +230,10 @@ class _EventSettingsState extends State<EventSettings> {
                                   ),
                                 );
                               }
-                              return Text("error");
+                              return Container();
                             }));
                       }
-                      return Text("Sup");
+                      return Container();
                     },
                   ),
                 ],

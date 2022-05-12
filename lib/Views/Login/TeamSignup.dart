@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frcscouting3572/Constants.dart';
-import 'package:frcscouting3572/Models/Team.dart';
+import 'package:frcscouting3572/Models/AssignedTeam.dart';
 import 'package:frcscouting3572/Models/User.dart';
 import 'package:frcscouting3572/Models/blocs/UserBloc.dart';
 import 'package:frcscouting3572/Network/APIHelper.dart';
 import 'package:frcscouting3572/Network/Auth.dart';
+import 'package:frcscouting3572/Network/DatabaseHandler.dart';
 import 'package:frcscouting3572/Views/TabScreen.dart';
 import 'package:frcscouting3572/Views/Shared/DialogMessage.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,7 @@ class _TeamSignupState extends State<TeamSignup> {
   final codeController = TextEditingController();
   final nameController = TextEditingController();
 
-  Team? team;
+  AssignedTeam? team;
 
   dynamic teamValidationMsg;
   dynamic codeValidationMsg;
@@ -78,7 +79,7 @@ class _TeamSignupState extends State<TeamSignup> {
     if (formKey.currentState!.validate()) {
       if (creating) {
         print("Team doesn't exist yet!");
-        Team newTeam = Team(
+        AssignedTeam newTeam = AssignedTeam(
             number: int.parse(teamController.text),
             owner: auth.currentUser!.email!,
             code: codeController.text);
@@ -86,9 +87,18 @@ class _TeamSignupState extends State<TeamSignup> {
         await apiHelper.post("Teams/${newTeam.number}/create", newTeam);
         this.team = newTeam;
       }
-      User user = User(team: this.team!.number, name: nameController.text);
+      User user = User(
+          uuid: auth.currentUser!.uid,
+          team: this.team!.number,
+          name: nameController.text);
       await apiHelper.post("Users/${auth.currentUser!.uid}/create", user);
-
+      // Save user to cache as well
+      await dbHandler.insertUser(user);
+      User? userFromCache = await dbHandler.getUser();
+      if (userFromCache == null) {
+        await dbHandler.insertUser(user);
+      }
+ 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: kGreen,
           content: Text("Successfully joined team ${this.team!.number}")));
@@ -136,7 +146,7 @@ class _TeamSignupState extends State<TeamSignup> {
                         validateTeamNumber(teamController.text);
                         var teamJson =
                             await apiHelper.get("Teams/${teamController.text}");
-                        this.team = Team.fromJson(teamJson);
+                        this.team = AssignedTeam.fromJson(teamJson["message"]);
                         validateTeamCode(codeController.text);
                         userBloc.user = await startSignupProcess(false);
                       } on NotFoundException catch (e) {

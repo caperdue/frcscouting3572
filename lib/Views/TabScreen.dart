@@ -1,20 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frcscouting3572/Views/Match%20Data/MatchData.dart';
 import 'package:frcscouting3572/Views/Pit Scouting/Scout.dart';
 import 'package:frcscouting3572/Views/Settings/Settings.dart' as Settings;
 
-class TabScreen extends StatefulWidget {
+class TabScreen extends StatelessWidget {
   TabScreen();
-
-  @override
-  _TabScreenState createState() => _TabScreenState();
-}
-
-class _TabScreenState extends State<TabScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -61,7 +51,7 @@ class _TabScreenState extends State<TabScreen> {
           ),
           body: TabBarView(children: [
             Scout(),
-            Text("Overall stats view"),
+            MatchData(),
             Text('Tab 3'),
             Settings.Settings(), //TODO: fix this ugliness!
           ])),

@@ -22,27 +22,27 @@ class ScoutTeam {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
-    data['scoutedTeam'] = this.scoutedTeam;
-    data['likeStatus'] = this.likeStatus;
-    data['comments'] = this.comments;
-    data['images'] = this.images;
-    data['stats'] = this.stats;
-    data['createdBy'] = this.createdBy;
-    data['season'] = this.season;
-    data['eventCode'] = this.eventCode;
-    data['assignedTeam'] = this.assignedTeam;
+    data["scoutedTeam"] = this.scoutedTeam;
+    data["likeStatus"] = this.likeStatus;
+    data["comments"] = this.comments;
+    data["images"] = this.images;
+    data["stats"] = this.stats;
+    data["createdBy"] = this.createdBy;
+    data["season"] = this.season;
+    data["eventCode"] = this.eventCode;
+    data["assignedTeam"] = this.assignedTeam;
     return data;
   }
 
   ScoutTeam.fromJson(Map<String, dynamic> json) {
-    scoutedTeam = json['scoutedTeam'];
-    likeStatus = json['likeStatus'];
-    comments = json['comments'];
-    images = json['images'];
-    stats = json['stats'];
-    createdBy = json['createdBy'];
-    season = json['season'];
-    eventCode = json['eventCode'];
-    assignedTeam = json['assignedTeam'];
+    scoutedTeam = json["scoutedTeam"];
+    likeStatus = json["likeStatus"];
+    comments = json["comments"];
+    images = json["images"];
+    stats = json["stats"];
+    createdBy = json["createdBy"];
+    season = json["season"];
+    eventCode = json["eventCode"];
+    assignedTeam = json["assignedTeam"];
   }
 }
